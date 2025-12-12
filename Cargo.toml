@@ -2,5 +2,10 @@
 name = "prrng"
 version = "0.1.0"
 edition = "2024"
+description = "psuedo-random number generation"
+readme = "readme.md"
+license = "Apache-2.0"
+repository = "https://github.com/wainggan/prrng.git"
 
 [dependencies]
+
