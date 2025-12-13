@@ -23,3 +23,17 @@ fn main() {
 }
 ```
 
+## road to 1.0.0
+
+-[ ] use api in a project to see if it is usable
+-[ ] finish documentation
+-[ ] add more algorithms
+    -[ ] [acorn](https://en.wikipedia.org/wiki/ACORN_(random_number_generator))
+    -[ ] [blum blum shub](https://en.wikipedia.org/wiki/Blum_Blum_Shub)
+    -[ ] [mersenne twister](https://en.wikipedia.org/wiki/Mersenne_Twister)
+    -[ ] [more xorshift](https://en.wikipedia.org/wiki/Xorshift)
+    -[ ] [collatz weyl](https://arxiv.org/abs/2312.17043)
+    -[ ] [salsa20](https://en.wikipedia.org/wiki/Salsa20)
+    -[ ] [isaac](https://en.wikipedia.org/wiki/ISAAC_(cipher))
+-[ ] benchmark for fun
+
