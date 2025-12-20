@@ -1,5 +1,6 @@
 
 // https://github.com/imneme/pcg-c-basic/blob/master/pcg_basic.c
+#[derive(Clone)]
 pub struct Pcg32 {
 	state: u64,
 	index: u64,
@@ -56,6 +57,12 @@ impl Iterator for Pcg32 {
 	fn next(&mut self) -> Option<Self::Item> {
 		use crate::Random;
 		Some(self.random_f64())
+	}
+}
+
+impl core::fmt::Debug for Pcg32 {
+	fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+		write!(f, "Pcg32")
 	}
 }
 

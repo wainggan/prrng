@@ -8,6 +8,10 @@ mod random;
 #[doc(inline)]
 pub use random::*;
 
+mod iter;
+#[doc(inline)]
+pub use iter::Iter;
+
 mod r#static;
 #[doc(inline)]
 pub use r#static::Static;
@@ -21,6 +25,8 @@ mod buffered;
 pub use buffered::Buffer32;
 #[doc(inline)]
 pub use buffered::Buffer64;
+#[doc(inline)]
+pub use buffered::Buffer8;
 
 mod wichhill;
 #[doc(inline)]

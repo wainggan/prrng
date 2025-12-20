@@ -56,6 +56,7 @@ pub const fn dornd(rand: &mut (u8, u8, u8, u8), carry: &mut bool) {
 
 /// [8bit lagged fibonacci generator](https://en.wikipedia.org/wiki/Lagged_Fibonacci_generator),
 /// extracted from Elite's [source code](https://elite.bbcelite.com/cassette/main/subroutine/dornd.html).
+#[derive(Clone)]
 pub struct FibLFG8 {
 	rand: (u8, u8, u8, u8),
 	carry: bool,
@@ -160,6 +161,11 @@ impl Iterator for FibLFG8 {
 	}
 }
 
+impl core::fmt::Debug for FibLFG8 {
+	fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+		write!(f, "FibLFG8")
+	}
+}
 
 #[cfg(test)]
 mod test {

@@ -11,12 +11,15 @@
 /// 
 /// that being said, this is not a replacement for proper security. do not use this in
 /// lieu of a properly, provably cryptographically secure rng like [`crate::ChaCha`].
-pub struct Crush<const N: usize, R: crate::Random, H: core::hash::Hasher> {
+#[derive(Clone)]
+pub struct Crush<const N: usize, R, H>
+where R: crate::Random, H: core::hash::Hasher {
 	inner: R,
 	hash: H,
 }
 
-impl<const N: usize, R: crate::Random, H: core::hash::Hasher> Crush<N, R, H> {
+impl<const N: usize, R, H> Crush<N, R, H>
+where R: crate::Random, H: core::hash::Hasher {
 	#[inline]
 	pub const fn new(inner: R, hasher: H) -> Self {
 		Self {
@@ -38,7 +41,8 @@ impl<const N: usize, R: crate::Random, H: core::hash::Hasher> Crush<N, R, H> {
 	}
 }
 
-impl<const N: usize, R: crate::Random, H: core::hash::Hasher> crate::Random for Crush<N, R, H> {
+impl<const N: usize, R, H> crate::Random for Crush<N, R, H>
+where R: crate::Random, H: core::hash::Hasher {
 	fn random_u64(&mut self) -> u64 {
 		self.get()
 	}
@@ -49,13 +53,24 @@ impl<const N: usize, R: crate::Random, H: core::hash::Hasher> crate::Random for 
 	}
 }
 
-impl<const N: usize, R: crate::Random, H: core::hash::Hasher> Iterator for Crush<N, R, H> {
+impl<const N: usize, R, H> Iterator for Crush<N, R, H>
+where R: crate::Random, H: core::hash::Hasher {
 	type Item = f64;
 
 	#[inline]
 	fn next(&mut self) -> Option<Self::Item> {
 		use crate::Random;
 		Some(self.random_f64())
+	}
+}
+
+impl<const N: usize, R, H> core::fmt::Debug for Crush<N, R, H>
+where
+	R: crate::Random + core::fmt::Debug,
+	H: core::hash::Hasher + core::fmt::Debug,
+{
+	fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+		write!(f, "Crush({}, {:?}, {:?})", N, self.inner, self.hash)
 	}
 }
 

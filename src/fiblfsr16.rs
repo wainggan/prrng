@@ -1,6 +1,6 @@
 
 /// [16bit fibonacci linear-feedback shift register](https://en.wikipedia.org/wiki/Linear-feedback_shift_register#Fibonacci_LFSRs) psuedo-rng.
-#[derive(Debug, Clone)]
+#[derive(Clone)]
 pub struct FibLFSR16 {
 	bit: u16,
 	lfsr: u16,
@@ -58,6 +58,12 @@ impl Iterator for FibLFSR16 {
 	fn next(&mut self) -> Option<Self::Item> {
 		use crate::Random;
 		Some(self.random_f64())
+	}
+}
+
+impl core::fmt::Debug for FibLFSR16 {
+	fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+		write!(f, "FibLFSR16")
 	}
 }
 

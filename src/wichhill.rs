@@ -10,7 +10,7 @@
 /// assert_eq!(rng.get(), 0.5273524613909046);
 /// assert_eq!(rng.get(), 0.44624074405335046);
 /// ```
-#[derive(Debug, Clone)]
+#[derive(Clone)]
 pub struct WichHill {
 	seed: (u32, u32, u32),
 }
@@ -97,6 +97,12 @@ impl Iterator for WichHill {
 	#[inline]
 	fn next(&mut self) -> Option<Self::Item> {
 		Some(self.get())
+	}
+}
+
+impl core::fmt::Debug for WichHill {
+	fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+		write!(f, "WichHill")
 	}
 }
 

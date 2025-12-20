@@ -5,44 +5,92 @@
 /// crate, allowing for very easy composition of algorithms. this trait
 /// also provides multiple common utilities for working with the generators.
 /// 
-/// the only methods required to be implemented
+/// when implementing `Random`, the only methods required to be implemented
+/// are [`Random::random_u32()`] and [`Random::random_u64`]. all other
+/// methods are derived from these, though some implementations may override
+/// [`Random::random_f64()`], [`Random::random_f32()`],
+/// [`Random::random_u128()`], [`Random::random_u16()`],
+/// [`Random::random_u8()`], and [`Random::random_bool()`].
+/// overriding any other method is discouraged.
 pub trait Random: Iterator<Item = f64> {
+	/// returns a new random value.
+	/// 
+	/// ## examples
+	/// 
+	/// ```
+	/// use prrng::Random;
+	/// use prrng::XorShift64;
+	/// 
+	/// let mut rng = XorShift64::new(1);
+	/// 
+	/// let a: u64 = rng.random();
+	/// let a = rng.random::<i8>();
+	/// let (a, b): (u32, u16) = rng.random();
+	/// let a = rng.random::<[u8; 64]>();
+	/// ```
+	/// 
+	/// this method can be particularly convenient when initializing
+	/// an rng with another rng:
+	/// 
+	/// ```
+	/// use prrng::Random;
+	/// use prrng::SplitMix64;
+	/// use prrng::XorShift256ss;
+	/// 
+	/// let rng = XorShift256ss::new({
+	///     let mut temp = SplitMix64::new(24935945);
+	///     temp.random()
+	/// });
+	/// ``` 
+	#[inline]
+	fn random<T: FromRandom>(&mut self) -> T where Self: Sized {
+		T::from_random(self)
+	}
+
 	/// returns a new f64.
 	#[inline]
 	fn random_f64(&mut self) -> f64 {
 		crate::common::u64_normalize_f64(self.random_u64())
 	}
 
+	/// returns a new f32.
 	#[inline]
 	fn random_f32(&mut self) -> f32 {
 		crate::common::u32_normalize_f32(self.random_u32())
 	}
 
+	/// returns a new u128.
 	#[inline]
 	fn random_u128(&mut self) -> u128 {
 		crate::common::u64_compose_u128(self.random_u64(), self.random_u64())
 	}
 
+	/// returns a new u64.
 	fn random_u64(&mut self) -> u64;
 
+	/// returns a new u32.
 	fn random_u32(&mut self) -> u32;
 
+	/// returns a new u16.
 	#[inline]
 	fn random_u16(&mut self) -> u16 {
 		self.random_u32() as u16
 	}
 
+	/// returns a new u8.
 	#[inline]
 	fn random_u8(&mut self) -> u8 {
 		self.random_u32() as u8
 	}
 
+	/// returns a new bool.
 	#[inline]
 	fn random_bool(&mut self) -> bool {
 		self.random_u8() & 1 == 1
 	}
 
-	fn random_fill(&mut self, dst: &mut [u8]) {
+	/// fill a byte buffer with new values.
+	fn random_bytes(&mut self, dst: &mut [u8]) {
 		let (chunks, extra) = dst.as_chunks_mut::<{ core::mem::size_of::<u128>() }>();
 
 		for chunk in chunks {
@@ -57,6 +105,21 @@ pub trait Random: Iterator<Item = f64> {
 
 		for (o, i) in extra.iter_mut().zip(last.iter()) {
 			*o = *i;
+		}
+	}
+
+	/// fill a buffer with new values.
+	fn random_fill<T: FromRandom>(&mut self, dst: &mut [T]) where Self: Sized {
+		for i in dst {
+			*i = self.random();
+		}
+	}
+
+	/// fill an uninitiaized buffer with new values.
+	/// by the end of this function, `dst` will be fully initialized.
+	fn random_fill_uninit<T: FromRandom>(&mut self, dst: &mut [core::mem::MaybeUninit<T>]) where Self: Sized {
+		for i in dst {
+			*i = core::mem::MaybeUninit::new(self.random());
 		}
 	}
 
@@ -122,13 +185,13 @@ pub trait Random: Iterator<Item = f64> {
 	}
 
 	#[inline]
-	fn random_into_iter(self) -> Iter<Self> where Self: Sized {
-		Iter::new(self)
+	fn random_into_iter(self) -> crate::Iter<Self> where Self: Sized {
+		crate::Iter::new(self)
 	}
 
 	#[inline]
-	fn random_iter(&mut self) -> Iter<&mut Self> where Self: Sized {
-		Iter::new(self)
+	fn random_iter(&mut self) -> crate::Iter<&mut Self> where Self: Sized {
+		crate::Iter::new(self)
 	}
 
 	#[inline]
@@ -157,6 +220,20 @@ pub trait Random: Iterator<Item = f64> {
 		-> crate::Buffer32<N, &mut Self> where Self: Sized
 	{
 		crate::Buffer32::new(self)
+	}
+
+	#[inline]
+	fn ranodm_into_buffer8<const N: usize>(self)
+		-> crate::Buffer8<N, Self> where Self: Sized
+	{
+		crate::Buffer8::new(self)
+	}
+
+	#[inline]
+	fn ranodm_buffer8<const N: usize>(&mut self)
+		-> crate::Buffer8<N, &mut Self> where Self: Sized
+	{
+		crate::Buffer8::new(self)
 	}
 
 	#[inline]
@@ -248,69 +325,230 @@ impl Random for &mut dyn Random {
 	}
 }
 
-pub struct Iter<R: Random> {
-	inner: R,
+pub trait FromRandom {
+	fn from_random(random: &mut impl Random) -> Self;
 }
 
-impl<R: Random> Iter<R> {
-	#[inline]
-	pub fn new(inner: R) -> Self {
-		Self {
-			inner,
-		}
-	}
-
-	#[inline]
-	pub fn unwrap(self) -> R {
-		self.inner
+impl FromRandom for f64 {
+	fn from_random(random: &mut impl Random) -> Self {
+		random.random_f64()
 	}
 }
 
-impl<R: Random> Iterator for Iter<R> {
-	type Item = f64;
-
-	#[inline]
-	fn next(&mut self) -> Option<Self::Item> {
-		self.inner.next()
+impl FromRandom for f32 {
+	fn from_random(random: &mut impl Random) -> Self {
+		random.random_f32()
 	}
 }
 
-impl<R: Random> Random for Iter<R> {
-	#[inline]
-	fn random_f64(&mut self) -> f64 {
-		self.inner.random_f64()
-	}
-
-	#[inline]
-	fn random_f32(&mut self) -> f32 {
-		self.inner.random_f32()
-	}
-
-	#[inline]
-	fn random_u128(&mut self) -> u128 {
-		self.inner.random_u128()
-	}
-
-	#[inline]
-	fn random_u64(&mut self) -> u64 {
-		self.inner.random_u64()
-	}
-
-	#[inline]
-	fn random_u32(&mut self) -> u32 {
-		self.inner.random_u32()
-	}
-
-	#[inline]
-	fn random_u16(&mut self) -> u16 {
-		self.inner.random_u16()
-	}
-
-	#[inline]
-	fn random_u8(&mut self) -> u8 {
-		self.inner.random_u8()
+impl FromRandom for u128 {
+	fn from_random(random: &mut impl Random) -> Self {
+		random.random_u128()
 	}
 }
+
+impl FromRandom for i128 {
+	fn from_random(random: &mut impl Random) -> Self {
+		random.random_u128().cast_signed()
+	}
+}
+
+impl FromRandom for u64 {
+	fn from_random(random: &mut impl Random) -> Self {
+		random.random_u64()
+	}
+}
+
+impl FromRandom for i64 {
+	fn from_random(random: &mut impl Random) -> Self {
+		random.random_u64().cast_signed()
+	}
+}
+
+impl FromRandom for u32 {
+	fn from_random(random: &mut impl Random) -> Self {
+		random.random_u32()
+	}
+}
+
+impl FromRandom for i32 {
+	fn from_random(random: &mut impl Random) -> Self {
+		random.random_u32().cast_signed()
+	}
+}
+
+impl FromRandom for u16 {
+	fn from_random(random: &mut impl Random) -> Self {
+		random.random_u16()
+	}
+}
+
+impl FromRandom for i16 {
+	fn from_random(random: &mut impl Random) -> Self {
+		random.random_u16().cast_signed()
+	}
+}
+
+impl FromRandom for u8 {
+	fn from_random(random: &mut impl Random) -> Self {
+		random.random_u8()
+	}
+}
+
+impl FromRandom for i8 {
+	fn from_random(random: &mut impl Random) -> Self {
+		random.random_u8().cast_signed()
+	}
+}
+
+impl FromRandom for bool {
+	fn from_random(random: &mut impl Random) -> Self {
+		random.random_bool()
+	}
+}
+
+impl<const N: usize, T: FromRandom> FromRandom for [T; N] {
+	fn from_random(random: &mut impl Random) -> Self {
+		core::array::from_fn(|_| random.random())
+	}
+}
+
+impl FromRandom for () {
+	fn from_random(_: &mut impl Random) -> Self {}
+}
+
+impl<A: FromRandom> FromRandom for (A,) {
+	fn from_random(random: &mut impl Random) -> Self {
+		(random.random(),)
+	}
+}
+
+impl<
+	A: FromRandom,
+	B: FromRandom,
+	> FromRandom for (A, B) {
+	fn from_random(random: &mut impl Random) -> Self {
+		(
+			random.random(),
+			random.random(),
+		)
+	}
+}
+
+impl<
+	A: FromRandom,
+	B: FromRandom,
+	C: FromRandom,
+	> FromRandom for (A, B, C) {
+	fn from_random(random: &mut impl Random) -> Self {
+		(
+			random.random(),
+			random.random(),
+			random.random(),
+		)
+	}
+}
+
+impl<
+	A: FromRandom,
+	B: FromRandom,
+	C: FromRandom,
+	D: FromRandom,
+	> FromRandom for (A, B, C, D) {
+	fn from_random(random: &mut impl Random) -> Self {
+		(
+			random.random(),
+			random.random(),
+			random.random(),
+			random.random(),
+		)
+	}
+}
+
+impl<
+	A: FromRandom,
+	B: FromRandom,
+	C: FromRandom,
+	D: FromRandom,
+	E: FromRandom,
+	> FromRandom for (A, B, C, D, E) {
+	fn from_random(random: &mut impl Random) -> Self {
+		(
+			random.random(),
+			random.random(),
+			random.random(),
+			random.random(),
+			random.random(),
+		)
+	}
+}
+
+impl<
+	A: FromRandom,
+	B: FromRandom,
+	C: FromRandom,
+	D: FromRandom,
+	E: FromRandom,
+	F: FromRandom,
+	> FromRandom for (A, B, C, D, E, F) {
+	fn from_random(random: &mut impl Random) -> Self {
+		(
+			random.random(),
+			random.random(),
+			random.random(),
+			random.random(),
+			random.random(),
+			random.random(),
+		)
+	}
+}
+
+impl<
+	A: FromRandom,
+	B: FromRandom,
+	C: FromRandom,
+	D: FromRandom,
+	E: FromRandom,
+	F: FromRandom,
+	G: FromRandom,
+	> FromRandom for (A, B, C, D, E, F, G) {
+	fn from_random(random: &mut impl Random) -> Self {
+		(
+			random.random(),
+			random.random(),
+			random.random(),
+			random.random(),
+			random.random(),
+			random.random(),
+			random.random(),
+		)
+	}
+}
+
+impl<
+	A: FromRandom,
+	B: FromRandom,
+	C: FromRandom,
+	D: FromRandom,
+	E: FromRandom,
+	F: FromRandom,
+	G: FromRandom,
+	H: FromRandom,
+	> FromRandom for (A, B, C, D, E, F, G, H) {
+	fn from_random(random: &mut impl Random) -> Self {
+		(
+			random.random(),
+			random.random(),
+			random.random(),
+			random.random(),
+			random.random(),
+			random.random(),
+			random.random(),
+			random.random(),
+		)
+	}
+}
+
 
 #[cfg(test)]
 mod test {
@@ -321,6 +559,8 @@ mod test {
 		let mut rng = crate::Static::new(|| 0.5);
 
 		assert_eq!(rng.random_range(0.0..2.0), 1.0);
+
+		let _x: (i16, u64) = rng.random();
 	}
 
 	#[test]

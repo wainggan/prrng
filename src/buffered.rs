@@ -160,4 +160,92 @@ impl<const N: usize, R: crate::Random> Iterator for Buffer64<N, R> {
 	}
 }
 
+pub struct Buffer8<const N: usize, R: crate::Random> {
+	inner: R,
+	buf: [u8; N],
+	index: usize,
+}
+
+impl<const N: usize, R: crate::Random> Buffer8<N, R> {
+	#[inline]
+	pub const fn new(inner: R) -> Self {
+		Self {
+			inner,
+			buf: [0; N],
+			index: N,
+		}
+	}
+
+	#[inline]
+	pub fn unwrap(self) -> R {
+		self.inner
+	}
+
+	/// refills the buffer, regardless if it had been consumed or not.
+	pub fn run(&mut self) {
+		self.inner.random_bytes(&mut self.buf);
+		self.index = 0;
+	}
+
+	/// returns the next value.
+	/// if the buffer has been consumed, this returns `None`.
+	#[inline]
+	pub fn get_checked(&mut self) -> Option<u8> {
+		if self.index >= N {
+			None
+		} else {
+			let ret = self.buf[self.index];
+			self.index += 1;
+			Some(ret)
+		}
+	}
+
+	/// returns the next value.
+	/// 
+	/// if the buffer has been consumed, the buffer will be automatically
+	/// refilled here.
+	/// see [`Self::get_checked()`] for a version that does not refill.
+	#[inline]
+	pub fn get(&mut self) -> u8 {
+		if self.index >= N {
+			self.run();
+		}
+
+		let ret = self.buf[self.index];
+		self.index += 1;
+		ret
+	}
+}
+
+impl<const N: usize, R: crate::Random> crate::Random for Buffer8<N, R> {
+	#[inline]
+	fn random_u64(&mut self) -> u64 {
+		crate::common::u32_compose_u64(self.random_u32(), self.random_u32())
+	}
+	
+	#[inline]
+	fn random_u32(&mut self) -> u32 {
+		crate::common::u16_compose_u32(self.random_u16(), self.random_u16())
+	}
+
+	fn random_u16(&mut self) -> u16 {
+		crate::common::u8_compose_u16(self.get(), self.get())
+	}
+
+	#[inline]
+	fn random_u8(&mut self) -> u8 {
+		self.get()
+	}
+}
+
+impl<const N: usize, R: crate::Random> Iterator for Buffer8<N, R> {
+	type Item = f64;
+
+	#[inline]
+	fn next(&mut self) -> Option<Self::Item> {
+		use crate::Random;
+		Some(self.random_f64())
+	}
+}
+
 

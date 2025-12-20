@@ -12,6 +12,7 @@ const LOWER_MASK: u32 = 0x7fffffff;
 
 // https://www.math.sci.hiroshima-u.ac.jp/m-mat/MT/MT2002/emt19937ar.html
 // https://github.com/ESultanik/mtwister
+#[derive(Clone)]
 pub struct MTwister {
 	buf: [u32; STATE_N],
 	index: usize,
@@ -89,6 +90,12 @@ impl Iterator for MTwister {
 	fn next(&mut self) -> Option<Self::Item> {
 		use crate::Random;
 		Some(self.random_f64())
+	}
+}
+
+impl core::fmt::Debug for MTwister {
+	fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+		write!(f, "MTwister")
 	}
 }
 

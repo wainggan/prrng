@@ -1,6 +1,7 @@
 
 // remember to skip first 48/96 states
 // https://arxiv.org/abs/2312.17043
+#[derive(Clone)]
 pub struct CollatzWeyl64 {
 	x: u64,
 	a: u64,
@@ -63,6 +64,13 @@ impl Iterator for CollatzWeyl64 {
 	}
 }
 
+impl core::fmt::Debug for CollatzWeyl64 {
+	fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+		write!(f, "CollatzWeyl64")
+	}
+}
+
+#[derive(Clone)]
 pub struct CollatzWeyl128_64 {
 	x: u128,
 	a: u64,
@@ -142,6 +150,13 @@ impl Iterator for CollatzWeyl128_64 {
 	}
 }
 
+impl core::fmt::Debug for CollatzWeyl128_64 {
+	fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+		write!(f, "CollatzWeyl128_64")
+	}
+}
+
+#[derive(Clone)]
 pub struct CollatzWeyl128 {
 	x: u128,
 	a: u128,
@@ -218,6 +233,12 @@ impl Iterator for CollatzWeyl128 {
 	fn next(&mut self) -> Option<Self::Item> {
 		use crate::Random;
 		Some(self.random_f64())
+	}
+}
+
+impl core::fmt::Debug for CollatzWeyl128 {
+	fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+		write!(f, "CollatzWeyl128")
 	}
 }
 

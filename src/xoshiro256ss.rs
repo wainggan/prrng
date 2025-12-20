@@ -1,4 +1,5 @@
 
+#[derive(Clone)]
 pub struct XorShift256ss {
 	seed: (u64, u64, u64, u64),
 }
@@ -56,6 +57,12 @@ impl Iterator for XorShift256ss {
 	fn next(&mut self) -> Option<Self::Item> {
 		use crate::Random;
 		Some(self.random_f64())
+	}
+}
+
+impl core::fmt::Debug for XorShift256ss {
+	fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+		write!(f, "XorShift256ss")
 	}
 }
 

@@ -10,7 +10,7 @@
 /// assert_eq!(rng.get(), 11177516664432764457);
 /// assert_eq!(rng.get(), 17678023832001937445);
 /// ```
-#[derive(Debug, Clone)]
+#[derive(Clone)]
 pub struct XorShift64 {
 	seed: u64,
 }
@@ -59,6 +59,12 @@ impl Iterator for XorShift64 {
 	fn next(&mut self) -> Option<Self::Item> {
 		use crate::Random;
 		Some(self.random_f64())
+	}
+}
+
+impl core::fmt::Debug for XorShift64 {
+	fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+		write!(f, "XorShift64")
 	}
 }
 

@@ -1,4 +1,5 @@
 
+#[derive(Clone)]
 pub struct SplitMix64 {
 	seed: u64,
 }
@@ -40,6 +41,12 @@ impl Iterator for SplitMix64 {
 	fn next(&mut self) -> Option<Self::Item> {
 		use crate::Random;
 		Some(self.random_f64())
+	}
+}
+
+impl core::fmt::Debug for SplitMix64 {
+	fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+		write!(f, "SplitMix64")
 	}
 }
 

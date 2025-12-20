@@ -2,6 +2,7 @@
 /// [chacha](https://en.wikipedia.org/wiki/Salsa20#ChaCha_variant) psuedo-rng.
 /// 
 /// implementation is based on [rfc 7539](https://www.rfc-editor.org/rfc/rfc7539).
+#[derive(Clone)]
 pub struct ChaCha<const N: u8 = 12> {
 	seed: [u32; 16],
 	serialized: u8,
@@ -119,6 +120,12 @@ impl<const N: u8> Iterator for ChaCha<N> {
 	fn next(&mut self) -> Option<Self::Item> {
 		use crate::Random;
 		Some(self.random_f64())
+	}
+}
+
+impl<const N: u8> core::fmt::Debug for ChaCha<N> {
+	fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+		write!(f, "ChaCha{}", N)
 	}
 }
 
