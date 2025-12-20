@@ -74,29 +74,10 @@ impl FibLFG8 {
 	pub const fn new(seed: u32) -> Self {
 		let [f1, m1, f0, m0] = seed.to_be_bytes();
 
-		let f0 = if f0 == 0 {
-			1
-		} else {
-			f0
-		};
-
-		let f1 = if f1 == 0 {
-			1
-		} else {
-			f1
-		};
-
-		let m0 = if m0 == 0 {
-			1
-		} else {
-			m0
-		};
-
-		let m1 = if m1 == 0 {
-			1
-		} else {
-			m1
-		};
+		let f0 = crate::common::u8_or_1(f0);
+		let f1 = crate::common::u8_or_1(f1);
+		let m0 = crate::common::u8_or_1(m0);
+		let m1 = crate::common::u8_or_1(m1);
 
 		Self::new_raw(f0, f1, m0, m1, false)
 	}
@@ -149,8 +130,18 @@ impl FibLFG8 {
 
 impl crate::Random for FibLFG8 {
 	#[inline]
-	fn random_f64(&mut self) -> f64 {
-		crate::common::u8_to_f64(self.get())
+	fn random_u64(&mut self) -> u64 {
+		crate::common::u32_compose_u64(self.random_u32(), self.random_u32())
+	}
+
+	#[inline]
+	fn random_u32(&mut self) -> u32 {
+		crate::common::u16_compose_u32(self.random_u16(), self.random_u16())
+	}
+
+	#[inline]
+	fn random_u16(&mut self) -> u16 {
+		crate::common::u8_compose_u16(self.random_u8(), self.random_u8())
 	}
 
 	#[inline]

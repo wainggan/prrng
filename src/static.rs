@@ -102,6 +102,21 @@ impl<T: FnMut() -> f64> crate::Random for Static<T> {
 	fn random_f64(&mut self) -> f64 {
 		self.get()
 	}
+
+	#[inline]
+	fn random_f32(&mut self) -> f32 {
+		self.get() as f32
+	}
+
+	#[inline]
+	fn random_u64(&mut self) -> u64 {
+		crate::common::u32_compose_u64(self.random_u32(), self.random_u32())
+	}
+
+	#[inline]
+	fn random_u32(&mut self) -> u32 {
+		crate::common::f64_to_u32(self.get())
+	}
 }
 
 impl<T: FnMut() -> f64> Iterator for Static<T> {

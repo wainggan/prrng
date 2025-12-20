@@ -3,18 +3,16 @@
 /// 
 /// ```
 /// # use prrng::WichHill;
-/// let mut rng = WichHill::new(0);
+/// let mut rng = WichHill::new([10, 20, 30]);
 /// 
-/// assert_eq!(rng.get(), 0.1905942791341093);
-/// assert_eq!(rng.get(), 0.21332214064505495);
-/// assert_eq!(rng.get(), 0.8948422044484658);
-/// assert_eq!(rng.get(), 0.028670929064924966);
+/// assert_eq!(rng.get(), 0.33818773630473775);
+/// assert_eq!(rng.get(), 0.7754188755966642);
+/// assert_eq!(rng.get(), 0.5273524613909046);
+/// assert_eq!(rng.get(), 0.44624074405335046);
 /// ```
 #[derive(Debug, Clone)]
 pub struct WichHill {
-	seed0: u32,
-	seed1: u32,
-	seed2: u32,
+	seed: (u32, u32, u32),
 }
 
 impl WichHill {
@@ -30,70 +28,33 @@ impl WichHill {
 	/// 
 	/// ```
 	/// # use prrng::WichHill;
-	/// let mut rng = WichHill::new_raw(0, 0, 0);
+	/// let mut rng = WichHill::new_raw([0, 0, 0]);
 	/// assert_eq!(rng.get(), 0.0);
 	/// assert_eq!(rng.get(), 0.0);
 	/// assert_eq!(rng.get(), 0.0);
 	/// assert_eq!(rng.get(), 0.0); // not random at all!
 	/// ```
 	#[inline]
-	pub const fn new_raw(seed0: u32, seed1: u32, seed2: u32) -> Self {
+	pub const fn new_raw(seed: [u32; 3]) -> Self {
 		Self {
-			seed0,
-			seed1,
-			seed2,
+			seed: (seed[0], seed[1], seed[2]),
 		}
 	}
 
 	#[inline]
-	pub const fn new(seed: u32) -> Self {
-		let mut rng = crate::XorShift32::new(seed);
-		
-		let seed0 = rng.get() % 30000;
-		let seed0 = if seed0 == 0 {
-			1
-		} else {
-			seed0
-		};
-
-		let seed1 = rng.get() % 30000;
-		let seed1 = if seed1 == 0 {
-			1
-		} else {
-			seed1
-		};
-
-		let seed2 = rng.get() % 30000;
-		let seed2 = if seed2 == 0 {
-			1
-		} else {
-			seed2
-		};
-
-		Self::new_raw(seed0, seed1, seed2)
-	}
-
-	#[inline]
-	pub const fn seed0(&mut self) -> &mut u32 {
-		&mut self.seed0
-	}
-
-	#[inline]
-	pub const fn seed1(&mut self) -> &mut u32 {
-		&mut self.seed1
-	}
-
-	#[inline]
-	pub const fn seed2(&mut self) -> &mut u32 {
-		&mut self.seed2
+	pub const fn new(mut seed: [u32; 3]) -> Self {
+		seed[0] = crate::common::u32_or_1(seed[0]);
+		seed[1] = crate::common::u32_or_1(seed[1]);
+		seed[2] = crate::common::u32_or_1(seed[2]);
+		Self::new_raw(seed)
 	}
 
 	#[inline]
 	pub const fn get(&mut self) -> f64 {
-		self.seed0 = (self.seed0 * 171) % 30269;
-		self.seed1 = (self.seed1 * 172) % 30307;
-		self.seed2 = (self.seed2 * 170) % 30323;
-		let x = self.seed0 as f64 / 30269.0 + self.seed1 as f64 / 30307.0 + self.seed2 as f64 / 30323.0;
+		self.seed.0 = (self.seed.0 * 171) % 30269;
+		self.seed.1 = (self.seed.1 * 172) % 30307;
+		self.seed.2 = (self.seed.2 * 170) % 30323;
+		let x = self.seed.0 as f64 / 30269.0 + self.seed.1 as f64 / 30307.0 + self.seed.2 as f64 / 30323.0;
 		x % 1.0
 	}
 }
@@ -102,6 +63,31 @@ impl crate::Random for WichHill {
 	#[inline]
 	fn random_f64(&mut self) -> f64 {
 		self.get()
+	}
+
+	#[inline]
+	fn random_f32(&mut self) -> f32 {
+		self.get() as f32
+	}
+
+	#[inline]
+	fn random_u64(&mut self) -> u64 {
+		crate::common::u32_compose_u64(self.random_u32(), self.random_u32())
+	}
+
+	#[inline]
+	fn random_u32(&mut self) -> u32 {
+		crate::common::f64_to_u32(self.get())
+	}
+
+	#[inline]
+	fn random_u16(&mut self) -> u16 {
+		crate::common::f64_to_u16(self.get())
+	}
+
+	#[inline]
+	fn random_u8(&mut self) -> u8 {
+		crate::common::f64_to_u8(self.get())
 	}
 }
 

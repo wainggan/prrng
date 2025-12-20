@@ -1,9 +1,16 @@
 
 /// [32bit xorshift](https://en.wikipedia.org/wiki/Xorshift) psuedo-rng.
 /// 
+/// this algorithm is *extremely* fast, and emits a generally 'good enough'
+/// uniform distrution, though it is not of particularly high quality.
+/// additionally, knowing one value allows one to very trivially predict
+/// all future and previous values.
+/// 
+/// this implementation has a period of `2^32-1`.
+/// 
 /// ```
 /// # use prrng::XorShift32;
-/// let mut rng = XorShift32::new(0);
+/// let mut rng = XorShift32::new(1);
 /// 
 /// assert_eq!(rng.get(), 270369);
 /// assert_eq!(rng.get(), 67634689);
@@ -16,6 +23,26 @@ pub struct XorShift32 {
 }
 
 impl XorShift32 {
+	/// construct a new [`XorShift32`].
+	/// 
+	/// `seed` should be any number except `0`, as a `0` seed will cause this
+	/// rng to only emit `0`s. see [`Self::new()`] for a constructor that
+	/// accounts for this.
+	/// 
+	/// ## examples
+	/// 
+	/// ```
+	/// # use prrng::XorShift32;
+	/// let rng = XorShift32::new_raw(1);
+	/// 
+	/// // beware of accidentally setting the seed to `0`:
+	/// let mut rng = XorShift32::new_raw(0);
+	/// 
+	/// assert_eq!(rng.get(), 0);
+	/// assert_eq!(rng.get(), 0);
+	/// assert_eq!(rng.get(), 0);
+	/// assert_eq!(rng.get(), 0);
+	/// ```
 	#[inline]
 	pub const fn new_raw(seed: u32) -> Self {
 		Self {
@@ -23,19 +50,30 @@ impl XorShift32 {
 		}
 	}
 
+	/// construct a new [`XorShift32`].
+	/// 
+	/// this rng's seed should not be `0`. if `seed` is `0`, then this
+	/// method will set the seed to `1`. see [`Self::new_raw()`] for a
+	/// constructor that does not do this.
+	/// 
+	/// ## examples
+	/// 
+	/// ```
+	/// # use prrng::XorShift32;
+	/// let rng = XorShift32::new(1);
+	/// 
+	/// // beware of accidentally setting the seed to `0`:
+	/// let mut rng_0 = XorShift32::new(0);
+	/// let mut rng_1 = XorShift32::new(1);
+	/// 
+	/// assert_eq!(rng_0.get(), rng_1.get()); // these streams are identical
+	/// assert_eq!(rng_0.get(), rng_1.get());
+	/// assert_eq!(rng_0.get(), rng_1.get());
+	/// ```
 	#[inline]
 	pub const fn new(seed: u32) -> Self {
-		let seed = if seed == 0 {
-			1
-		} else {
-			seed
-		};
+		let seed = crate::common::u32_or_1(seed);
 		Self::new_raw(seed)
-	}
-
-	#[inline]
-	pub const fn seed(&mut self) -> &mut u32 {
-		&mut self.seed
 	}
 
 	#[inline]
@@ -51,8 +89,8 @@ impl XorShift32 {
 
 impl crate::Random for XorShift32 {
 	#[inline]
-	fn random_f64(&mut self) -> f64 {
-		crate::common::u32_to_f64(self.get())
+	fn random_u64(&mut self) -> u64 {
+		crate::common::u32_compose_u64(self.get(), self.get())
 	}
 
 	#[inline]

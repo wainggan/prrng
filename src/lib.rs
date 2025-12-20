@@ -12,6 +12,16 @@ mod r#static;
 #[doc(inline)]
 pub use r#static::Static;
 
+mod crush;
+#[doc(inline)]
+pub use crush::Crush;
+
+mod buffered;
+#[doc(inline)]
+pub use buffered::Buffer32;
+#[doc(inline)]
+pub use buffered::Buffer64;
+
 mod wichhill;
 #[doc(inline)]
 pub use wichhill::WichHill;
@@ -27,6 +37,36 @@ pub use xorshift64::XorShift64;
 mod xorshift128p;
 #[doc(inline)]
 pub use xorshift128p::XorShift128p;
+
+mod xoshiro256ss;
+#[doc(inline)]
+pub use xoshiro256ss::XorShift256ss;
+
+mod chacha;
+#[doc(inline)]
+pub use chacha::ChaCha;
+
+mod collatzweyl;
+#[doc(inline)]
+pub use collatzweyl::CollatzWeyl64;
+#[doc(inline)]
+pub use collatzweyl::CollatzWeyl128_64;
+#[doc(inline)]
+pub use collatzweyl::CollatzWeyl128;
+
+mod mtwister;
+#[doc(inline)]
+pub use mtwister::MTwister;
+
+mod splitmix64;
+#[doc(inline)]
+pub use splitmix64::SplitMix64;
+
+mod pcg32;
+#[doc(inline)]
+pub use pcg32::Pcg32;
+
+pub mod lcg;
 
 mod fiblfsr16;
 #[doc(inline)]

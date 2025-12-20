@@ -17,23 +17,8 @@ impl FibLFSR16 {
 
 	#[inline]
 	pub const fn new(seed: u16) -> Self {
-		let seed = if seed == 0 {
-			1
-		} else {
-			seed
-		};
-
+		let seed = crate::common::u16_or_1(seed);
 		Self::new_raw(seed)
-	}
-
-	#[inline]
-	pub const fn bit(&mut self) -> &mut u16 {
-		&mut self.bit
-	}
-
-	#[inline]
-	pub const fn seed(&mut self) -> &mut u16 {
-		&mut self.lfsr
 	}
 	
 	#[inline]
@@ -46,13 +31,23 @@ impl FibLFSR16 {
 
 impl crate::Random for FibLFSR16 {
 	#[inline]
-	fn random_f64(&mut self) -> f64 {
-		crate::common::u16_to_f64(self.get())
+	fn random_u64(&mut self) -> u64 {
+		crate::common::u32_compose_u64(self.random_u32(), self.random_u32())
 	}
-
+	
+	#[inline]
+	fn random_u32(&mut self) -> u32 {
+		crate::common::u16_compose_u32(self.get(), self.get())
+	}
+	
 	#[inline]
 	fn random_u16(&mut self) -> u16 {
 		self.get()
+	}
+
+	#[inline]
+	fn random_u8(&mut self) -> u8 {
+		self.get() as u8
 	}
 }
 
