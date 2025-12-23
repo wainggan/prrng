@@ -23,7 +23,10 @@ impl XorShift256ss {
 
 	#[inline]
 	pub const fn get(&mut self) -> u64 {
-		let result = (self.seed.1 * 5).rotate_left(7) * 9;
+		let result = self.seed.1
+			.wrapping_mul(5)
+			.rotate_left(7)
+			.wrapping_mul(9);
 		let t = self.seed.1 << 17;
 
 		self.seed.2 ^= self.seed.0;

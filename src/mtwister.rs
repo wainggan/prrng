@@ -25,7 +25,9 @@ impl MTwister {
 		buf[0] = seed;
 		
 		for i in 1..buf.len() {
-			buf[i] = 1812433253 * (buf[i - 1] ^ (buf[i - 1] >> 30)) + i as u32;
+			buf[i] = 1812433253u32
+				.wrapping_mul(buf[i - 1] ^ (buf[i - 1] >> 30))
+				.wrapping_add(i as u32);
 		}
 
 		Self {
@@ -55,20 +57,32 @@ impl MTwister {
 		self.index = 0;
 	}
 
+	fn temper(mut value: u32) -> u32 {
+		value ^= value >> 11;
+		value ^= (value << 7) & MASK_B;
+		value ^= (value << 15) & MASK_C;
+		value ^= value >> 18;
+		value
+	}
+
+	pub fn get_checked(&mut self) -> Option<u32> {
+		if self.index >= STATE_N {
+			None
+		} else {
+			let ret = self.buf[self.index];
+			self.index += 1;
+			Some(Self::temper(ret))
+		}
+	}
+
 	pub fn get(&mut self) -> u32 {
 		if self.index >= STATE_N {
 			self.run();
 		}
 
-		let mut ret = self.buf[self.index];
+		let ret = self.buf[self.index];
 		self.index += 1;
-		
-		ret ^= ret >> 11;
-		ret ^= (ret << 7) & MASK_B;
-		ret ^= (ret << 15) & MASK_C;
-		ret ^= ret >> 18;
-
-		ret
+		Self::temper(ret)
 	}
 }
 
