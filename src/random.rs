@@ -15,6 +15,8 @@
 pub trait Random: Iterator<Item = f64> {
 	/// returns a new random value.
 	/// 
+	/// implement [`FromRandom`] to have this method work on your own types.  
+	/// 
 	/// ## examples
 	/// 
 	/// ```
@@ -108,15 +110,15 @@ pub trait Random: Iterator<Item = f64> {
 		}
 	}
 
-	/// fill a buffer with new values.
+	/// fill a buffer with random values.
 	fn random_fill<T: FromRandom>(&mut self, dst: &mut [T]) where Self: Sized {
 		for i in dst {
 			*i = self.random();
 		}
 	}
 
-	/// fill an uninitiaized buffer with new values.
-	/// by the end of this function, `dst` will be fully initialized.
+	/// fill an uninitiaized buffer with random values.
+	/// by the end of this method, `dst` will be fully initialized.
 	fn random_fill_uninit<T: FromRandom>(&mut self, dst: &mut [core::mem::MaybeUninit<T>]) where Self: Sized {
 		for i in dst {
 			*i = core::mem::MaybeUninit::new(self.random());
@@ -195,42 +197,42 @@ pub trait Random: Iterator<Item = f64> {
 	}
 
 	#[inline]
-	fn ranodm_into_buffer64<const N: usize>(self)
+	fn random_into_buffer64<const N: usize>(self)
 		-> crate::Buffer64<N, Self> where Self: Sized
 	{
 		crate::Buffer64::new(self)
 	}
 
 	#[inline]
-	fn ranodm_buffer64<const N: usize>(&mut self)
+	fn random_buffer64<const N: usize>(&mut self)
 		-> crate::Buffer64<N, &mut Self> where Self: Sized
 	{
 		crate::Buffer64::new(self)
 	}
 
 	#[inline]
-	fn ranodm_into_buffer32<const N: usize>(self)
+	fn random_into_buffer32<const N: usize>(self)
 		-> crate::Buffer32<N, Self> where Self: Sized
 	{
 		crate::Buffer32::new(self)
 	}
 
 	#[inline]
-	fn ranodm_buffer32<const N: usize>(&mut self)
+	fn random_buffer32<const N: usize>(&mut self)
 		-> crate::Buffer32<N, &mut Self> where Self: Sized
 	{
 		crate::Buffer32::new(self)
 	}
 
 	#[inline]
-	fn ranodm_into_buffer8<const N: usize>(self)
+	fn random_into_buffer8<const N: usize>(self)
 		-> crate::Buffer8<N, Self> where Self: Sized
 	{
 		crate::Buffer8::new(self)
 	}
 
 	#[inline]
-	fn ranodm_buffer8<const N: usize>(&mut self)
+	fn random_buffer8<const N: usize>(&mut self)
 		-> crate::Buffer8<N, &mut Self> where Self: Sized
 	{
 		crate::Buffer8::new(self)
@@ -325,6 +327,14 @@ impl Random for &mut dyn Random {
 	}
 }
 
+/// randomized constructor.
+/// 
+/// this trait defines a constructor [`FromRandom::from_random()`], that
+/// takes a [`Random`] and returns a fully initialized `Self`.
+/// this is used with `Random`'s generic [`Random::random()`] method.
+/// 
+/// `FromRandom` is already implemented for most of Rust's primitives, arrays,
+/// and tuples up to a length of 8.
 pub trait FromRandom {
 	fn from_random(random: &mut impl Random) -> Self;
 }
