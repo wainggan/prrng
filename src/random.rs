@@ -198,36 +198,20 @@ pub trait Random: RandomImpl {
 		crate::Iter::new(self)
 	}
 
-	/// consume `self`, wrapping it in a [`crate::buffer::Buffer64`] with size `N`.
+	/// consume `self`, wrapping it in a [`crate::buffer::Buffer`] with size `N`.
 	#[inline]
-	fn random_into_buffer64<const N: usize>(self)
-		-> crate::buffer::Buffer64<N, Self> where Self: Sized
+	fn random_into_buffer<T: FromRandom, const N: usize>(self)
+		-> crate::buffer::Buffer<T, N, Self> where Self: Sized
 	{
-		crate::buffer::Buffer64::new(self)
+		crate::buffer::Buffer::new(self)
 	}
 
-	/// wrap `&mut self` in a [`crate::buffer::Buffer64`] with size `N`.
+	/// wrap `&mut self` in a [`crate::buffer::Buffer`] with size `N`.
 	#[inline]
-	fn random_buffer64<const N: usize>(&mut self)
-		-> crate::buffer::Buffer64<N, &mut Self> where Self: Sized
+	fn random_buffer<T: FromRandom, const N: usize>(&mut self)
+		-> crate::buffer::Buffer<T, N, &mut Self> where Self: Sized
 	{
-		crate::buffer::Buffer64::new(self)
-	}
-
-	/// consume `self`, wrapping it in a [`crate::buffer::Buffer32`] with size `N`.
-	#[inline]
-	fn random_into_buffer32<const N: usize>(self)
-		-> crate::buffer::Buffer32<N, Self> where Self: Sized
-	{
-		crate::buffer::Buffer32::new(self)
-	}
-
-	/// wrap `&mut self` in a [`crate::buffer::Buffer32`] with size `N`.
-	#[inline]
-	fn random_buffer32<const N: usize>(&mut self)
-		-> crate::buffer::Buffer32<N, &mut Self> where Self: Sized
-	{
-		crate::buffer::Buffer32::new(self)
+		crate::buffer::Buffer::new(self)
 	}
 
 	/// consume `self`, wrapping it in a [`crate::buffer::Buffer8`] with size `N`.
