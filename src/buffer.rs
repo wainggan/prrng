@@ -68,7 +68,7 @@ impl<const N: usize, R: crate::Random> Buffer32<N, R> {
 	}
 }
 
-impl<const N: usize, R: crate::Random> crate::Random for Buffer32<N, R> {
+impl<const N: usize, R: crate::Random> crate::RandomImpl for Buffer32<N, R> {
 	#[inline]
 	fn random_u64(&mut self) -> u64 {
 		crate::common::u32_compose_u64(self.get(), self.get())
@@ -77,6 +77,10 @@ impl<const N: usize, R: crate::Random> crate::Random for Buffer32<N, R> {
 	#[inline]
 	fn random_u32(&mut self) -> u32 {
 		self.get()
+	}
+
+	fn random_bytes(&mut self, dst: &mut [u8]) {
+		crate::common::bytes_from_u32(self, dst);
 	}
 }
 
@@ -127,7 +131,7 @@ impl<const N: usize, R: crate::Random> Buffer64<N, R> {
 	}
 }
 
-impl<const N: usize, R: crate::Random> crate::Random for Buffer64<N, R> {
+impl<const N: usize, R: crate::Random> crate::RandomImpl for Buffer64<N, R> {
 	#[inline]
 	fn random_u64(&mut self) -> u64 {
 		self.get()
@@ -136,6 +140,10 @@ impl<const N: usize, R: crate::Random> crate::Random for Buffer64<N, R> {
 	#[inline]
 	fn random_u32(&mut self) -> u32 {
 		self.get() as u32
+	}
+
+	fn random_bytes(&mut self, dst: &mut [u8]) {
+		crate::common::bytes_from_u64(self, dst);
 	}
 }
 
@@ -197,24 +205,22 @@ impl<const N: usize, R: crate::Random> Buffer8<N, R> {
 	}
 }
 
-impl<const N: usize, R: crate::Random> crate::Random for Buffer8<N, R> {
+impl<const N: usize, R: crate::Random> crate::RandomImpl for Buffer8<N, R> {
 	#[inline]
 	fn random_u64(&mut self) -> u64 {
-		crate::common::u32_compose_u64(self.random_u32(), self.random_u32())
+		crate::common::u64_from_bytes(self)
 	}
 	
 	#[inline]
 	fn random_u32(&mut self) -> u32 {
-		crate::common::u16_compose_u32(self.random_u16(), self.random_u16())
-	}
-
-	fn random_u16(&mut self) -> u16 {
-		crate::common::u8_compose_u16(self.get(), self.get())
+		crate::common::u32_from_bytes(self)
 	}
 
 	#[inline]
-	fn random_u8(&mut self) -> u8 {
-		self.get()
+	fn random_bytes(&mut self, dst: &mut [u8]) {
+		for i in dst {
+			*i = self.get();
+		}
 	}
 }
 

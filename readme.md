@@ -1,13 +1,12 @@
 
 # prrng
 
-collection of psuedo-random number generators.
+a collection of psuedo-random number generators.
 
-this crate provides a few prng algorithms, easily composable with each other via the the [`Random`] trait.
+this crate provides a few prng algorithms, easily composable with each other via the [`Random`] trait.
 
 ```rust
 use prrng::XorShift32;
-use prrng::Random;
 
 fn main() {
     let mut rng = XorShift32::new(1);
@@ -15,16 +14,18 @@ fn main() {
     assert_eq!(rng.get(), 270369u32);
     assert_eq!(rng.get(), 67634689u32);
 
+    use prrng::Random;
+
     let mut iter = rng.random_iter();
     assert_eq!(iter.next(), Some(0.7912035671411848));
     assert_eq!(iter.next(), Some(0.5683147178403836));
 
-    // utility functions
-    assert_eq!(rng.random_range(8.0..16.0) as u32, 9);
-    assert_eq!(rng.random_range(8.0..16.0) as u32, 11);
-
-    assert_eq!(rng.random::<u64>(), 11412124528153499447);
-    assert_eq!(rng.random::<(u8, bool)>(), (138, false));
+    assert_eq!(rng.random::<u64>(), 2716289712455752882);
+    assert_eq!(rng.random::<(u8, bool)>(), (37, false));
 }
 ```
+
+prrng is for fun, and mainly intended to have minimal and extremely simple implementations of various rng algorithms, including popular ones like some xorshift variants or ChaCha, and including very esoteric ones like a recreation of the infamous RANDU function, or even the rng used in BBC Elite. all this, while being completely `no_std`.
+
+everything here is best effort.
 

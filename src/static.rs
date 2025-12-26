@@ -50,10 +50,13 @@
 /// }
 /// 
 /// fn main() {
-///     let mut rng = Static::new(|| 2.0);
+///     let mut rng = Static::new(|| 100.0);
 ///     safe(&[0], &mut rng);
 /// }
 /// ```
+/// 
+/// note that the output of `Static` is not equivalent to the output of,
+/// say, [`crate::Random::random_f64()`]. be careful.
 #[derive(Debug, Clone)]
 pub struct Static<T: FnMut() -> f64> {
 	cb: T,
@@ -97,17 +100,7 @@ impl<T: FnMut() -> f64> Static<T> {
 	}
 }
 
-impl<T: FnMut() -> f64> crate::Random for Static<T> {
-	#[inline]
-	fn random_f64(&mut self) -> f64 {
-		self.get()
-	}
-
-	#[inline]
-	fn random_f32(&mut self) -> f32 {
-		self.get() as f32
-	}
-
+impl<T: FnMut() -> f64> crate::RandomImpl for Static<T> {
 	#[inline]
 	fn random_u64(&mut self) -> u64 {
 		crate::common::u32_compose_u64(self.random_u32(), self.random_u32())
@@ -116,6 +109,10 @@ impl<T: FnMut() -> f64> crate::Random for Static<T> {
 	#[inline]
 	fn random_u32(&mut self) -> u32 {
 		crate::common::f64_to_u32(self.get())
+	}
+
+	fn random_bytes(&mut self, dst: &mut [u8]) {
+		crate::common::bytes_from_u32(self, dst);
 	}
 }
 

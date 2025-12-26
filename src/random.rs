@@ -1,18 +1,47 @@
 
+/// random number generation.
+/// 
+/// see [`Random`] for more information.
+pub trait RandomImpl {
+	/// returns a new `u64`.
+	/// 
+	/// consider using [`crate::common::u64_from_bytes()`] or
+	/// [`crate::common::u32_compose_u64()`] when implementing this.
+	fn random_u64(&mut self) -> u64;
+	
+	/// returns a new `u32`.
+	/// 
+	/// consider using [`crate::common::u32_from_bytes()`]
+	/// when implementing this.
+	fn random_u32(&mut self) -> u32;
+	
+	/// fills a buffer with new values.
+	/// 
+	/// consider using [`crate::common::bytes_from_u32()`] or
+	/// [`crate::common::bytes_from_u64()`] when implementing this.
+	fn random_bytes(&mut self, dst: &mut [u8]);
+}
+
+mod private {
+	pub struct Seal;
+}
+
 /// generic random number generation.
 /// 
 /// this type is dyn-compatible, and implemented for all generators in this
 /// crate, allowing for very easy composition of algorithms. this trait
 /// also provides multiple common utilities for working with the generators.
 /// 
-/// when implementing `Random`, the only methods required to be implemented
-/// are [`Random::random_u32()`] and [`Random::random_u64`]. all other
-/// methods are derived from these, though some implementations may override
-/// [`Random::random_f64()`], [`Random::random_f32()`],
-/// [`Random::random_u128()`], [`Random::random_u16()`],
-/// [`Random::random_u8()`], and [`Random::random_bool()`].
-/// overriding any other method is discouraged.
-pub trait Random {
+/// implementing `Random` is done via [`RandomImpl`], where you'd implement
+/// [`RandomImpl::random_u64()`], [`RandomImpl::random_u32()`], and
+/// [`RandomImpl::random_bytes()`]. `Random` is free, as `Random` is blanket
+/// implemented for `RandomImpl`.
+/// see the [`crate::common`] module for helper methods.
+pub trait Random: RandomImpl {
+	/// reserving the right to implement `Random`. just in case.
+	#[doc(hidden)]
+	fn __random_sealed(_: private::Seal) where Self: Sized;
+
 	/// returns a new random value `T`.
 	/// 
 	/// implement [`FromRandom`] to have this method work on your own types.  
@@ -50,67 +79,37 @@ pub trait Random {
 	}
 
 	/// returns a new `f64`.
-	#[inline]
 	fn random_f64(&mut self) -> f64 {
 		crate::common::u64_normalize_f64(self.random_u64())
 	}
 
 	/// returns a new `f32`.
-	#[inline]
 	fn random_f32(&mut self) -> f32 {
 		crate::common::u32_normalize_f32(self.random_u32())
 	}
 
 	/// returns a new `u128`.
-	#[inline]
 	fn random_u128(&mut self) -> u128 {
 		crate::common::u64_compose_u128(self.random_u64(), self.random_u64())
 	}
 
-	/// returns a new `u64`.
-	fn random_u64(&mut self) -> u64;
-
-	/// returns a new `u32`.
-	fn random_u32(&mut self) -> u32;
-
 	/// returns a new `u16`.
-	#[inline]
 	fn random_u16(&mut self) -> u16 {
 		self.random_u32() as u16
 	}
 
 	/// returns a new `u8`.
-	#[inline]
 	fn random_u8(&mut self) -> u8 {
 		self.random_u32() as u8
 	}
 
 	/// returns a new `bool`.
-	#[inline]
 	fn random_bool(&mut self) -> bool {
-		self.random_u8() & 1 == 1
-	}
-
-	/// fill a byte buffer with new values.
-	fn random_bytes(&mut self, dst: &mut [u8]) {
-		let (chunks, extra) = dst.as_chunks_mut::<{ core::mem::size_of::<u128>() }>();
-
-		for chunk in chunks {
-			*chunk = self.random_u128().to_le_bytes();
-		}
-
-		if extra.is_empty() {
-			return;
-		}
-
-		let last = self.random_u128().to_le_bytes();
-
-		for (o, i) in extra.iter_mut().zip(last.iter()) {
-			*o = *i;
-		}
+		self.random_u32() & 1 == 1
 	}
 
 	/// fill a buffer with random values `T`.
+	#[inline]
 	fn random_fill<T: FromRandom>(&mut self, dst: &mut [T]) where Self: Sized {
 		for i in dst {
 			*i = self.random();
@@ -126,6 +125,7 @@ pub trait Random {
 	}
 
 	/// returns a new `u128`, uniformly distributed within `0 .. bound`.
+	#[inline]
 	fn random_u128_bound(&mut self, bound: u128) -> u128 {
 		let threshold = bound.wrapping_neg() % bound;
 		loop {
@@ -265,22 +265,11 @@ pub trait Random {
 	}
 }
 
-impl<T: Random> Random for &mut T {
-	#[inline]
-	fn random_f64(&mut self) -> f64 {
-		(*self).random_f64()
-	}
+impl<T: RandomImpl> Random for T {
+	fn __random_sealed(_: private::Seal) where Self: Sized {}
+}
 
-	#[inline]
-	fn random_f32(&mut self) -> f32 {
-		(*self).random_f32()
-	}
-
-	#[inline]
-	fn random_u128(&mut self) -> u128 {
-		(*self).random_u128()
-	}
-
+impl<T: RandomImpl> RandomImpl for &mut T {
 	#[inline]
 	fn random_u64(&mut self) -> u64 {
 		(*self).random_u64()
@@ -292,32 +281,12 @@ impl<T: Random> Random for &mut T {
 	}
 
 	#[inline]
-	fn random_u16(&mut self) -> u16 {
-		(*self).random_u16()
-	}
-	
-	#[inline]
-	fn random_u8(&mut self) -> u8 {
-		(*self).random_u8()
+	fn random_bytes(&mut self, dst: &mut [u8]) {
+		(*self).random_bytes(dst);
 	}
 }
 
-impl Random for &mut dyn Random {
-	#[inline]
-	fn random_f64(&mut self) -> f64 {
-		(*self).random_f64()
-	}
-
-	#[inline]
-	fn random_f32(&mut self) -> f32 {
-		(*self).random_f32()
-	}
-
-	#[inline]
-	fn random_u128(&mut self) -> u128 {
-		(*self).random_u128()
-	}
-
+impl RandomImpl for &mut dyn RandomImpl {
 	#[inline]
 	fn random_u64(&mut self) -> u64 {
 		(*self).random_u64()
@@ -328,14 +297,8 @@ impl Random for &mut dyn Random {
 		(*self).random_u32()
 	}
 
-	#[inline]
-	fn random_u16(&mut self) -> u16 {
-		(*self).random_u16()
-	}
-	
-	#[inline]
-	fn random_u8(&mut self) -> u8 {
-		(*self).random_u8()
+	fn random_bytes(&mut self, dst: &mut [u8]) {
+		(*self).random_bytes(dst);
 	}
 }
 
@@ -353,25 +316,25 @@ pub trait FromRandom {
 
 impl FromRandom for f64 {
 	fn from_random(random: &mut impl Random) -> Self {
-		random.random_f64()
+		crate::common::u64_normalize_f64(random.random_u64())
 	}
 }
 
 impl FromRandom for f32 {
 	fn from_random(random: &mut impl Random) -> Self {
-		random.random_f32()
+		crate::common::u32_normalize_f32(random.random_u32())
 	}
 }
 
 impl FromRandom for u128 {
 	fn from_random(random: &mut impl Random) -> Self {
-		random.random_u128()
+		crate::common::u64_compose_u128(random.random_u64(), random.random_u64())
 	}
 }
 
 impl FromRandom for i128 {
 	fn from_random(random: &mut impl Random) -> Self {
-		random.random_u128().cast_signed()
+		crate::common::u64_compose_u128(random.random_u64(), random.random_u64()).cast_signed()
 	}
 }
 
@@ -580,14 +543,18 @@ mod test {
 	fn test_main() {
 		let mut rng = crate::Static::new(|| 0.5);
 
-		assert_eq!(rng.random_range(0.0..2.0), 1.0);
-
 		let _x: (i16, u64) = rng.random();
 	}
 
 	#[test]
 	fn test_dyn() {
-		let _object: &mut dyn crate::Random = &mut crate::Static::new(|| 0.0);
+		let object: &mut dyn crate::Random = &mut crate::Static::new(|| 0.0);
+
+		object.random_f64();
+		object.random_f32();
+		object.random_u64();
+		object.random_u32();
+
 		let _object: &mut dyn crate::Random = &mut crate::Static::new(|| 0.0).random_iter::<()>();
 	}
 

@@ -41,7 +41,7 @@ impl XorShift256ss {
 	}
 }
 
-impl crate::Random for XorShift256ss {
+impl crate::RandomImpl for XorShift256ss {
 	#[inline]
 	fn random_u64(&mut self) -> u64 {
 		self.get()
@@ -50,6 +50,10 @@ impl crate::Random for XorShift256ss {
 	#[inline]
 	fn random_u32(&mut self) -> u32 {
 		self.get() as u32
+	}
+
+	fn random_bytes(&mut self, dst: &mut [u8]) {
+		crate::common::bytes_from_u64(self, dst);
 	}
 }
 

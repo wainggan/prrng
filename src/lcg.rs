@@ -20,33 +20,36 @@ pub struct Lcg8<const A: u8, const C: u8, const M: u8> {
 }
 
 impl<const A: u8, const C: u8, const M: u8,> Lcg8<A, C, M> {
+	#[inline]
 	pub const fn new(seed: u8) -> Self {
 		Self {
 			seed,
 		}
 	}
 
+	#[inline]
 	pub const fn get(&mut self) -> u8 {
 		self.seed = self.seed.wrapping_mul(A).wrapping_add(C) % M;
 		self.seed
 	}
 }
 
-impl<const A: u8, const C: u8, const M: u8> crate::Random for Lcg8<A, C, M> {
+impl<const A: u8, const C: u8, const M: u8> crate::RandomImpl for Lcg8<A, C, M> {
+	#[inline]
 	fn random_u64(&mut self) -> u64 {
-		crate::common::u32_compose_u64(self.random_u32(), self.random_u32())
+		crate::common::u64_from_bytes(self)
 	}
 
+	#[inline]
 	fn random_u32(&mut self) -> u32 {
-		crate::common::u16_compose_u32(self.random_u16(), self.random_u16())
+		crate::common::u32_from_bytes(self)
 	}
 
-	fn random_u16(&mut self) -> u16 {
-		crate::common::u8_compose_u16(self.get(), self.get())
-	}
-
-	fn random_u8(&mut self) -> u8 {
-		self.get()
+	#[inline]
+	fn random_bytes(&mut self, dst: &mut [u8]) {
+		for i in dst {
+			*i = self.get();
+		}
 	}
 }
 
@@ -63,33 +66,33 @@ pub struct Lcg16<const A: u16, const C: u16, const M: u16> {
 }
 
 impl<const A: u16, const C: u16, const M: u16> Lcg16<A, C, M> {
+	#[inline]
 	pub const fn new(seed: u16) -> Self {
 		Self {
 			seed,
 		}
 	}
 
+	#[inline]
 	pub const fn get(&mut self) -> u16 {
 		self.seed = self.seed.wrapping_mul(A).wrapping_add(C) % M;
 		self.seed
 	}
 }
 
-impl<const A: u16, const C: u16, const M: u16> crate::Random for Lcg16<A, C, M> {
+impl<const A: u16, const C: u16, const M: u16> crate::RandomImpl for Lcg16<A, C, M> {
+	#[inline]
 	fn random_u64(&mut self) -> u64 {
 		crate::common::u32_compose_u64(self.random_u32(), self.random_u32())
 	}
 
+	#[inline]
 	fn random_u32(&mut self) -> u32 {
-		crate::common::u16_compose_u32(self.random_u16(), self.random_u16())
+		crate::common::u16_compose_u32(self.get(), self.get())
 	}
 
-	fn random_u16(&mut self) -> u16 {
-		self.get()
-	}
-	
-	fn random_u8(&mut self) -> u8 {
-		self.get() as u8
+	fn random_bytes(&mut self, dst: &mut [u8]) {
+		crate::common::bytes_from_u32(self, dst);
 	}
 }
 
@@ -105,25 +108,33 @@ pub struct Lcg32<const A: u32, const C: u32, const M: u32> {
 }
 
 impl<const A: u32, const C: u32, const M: u32> Lcg32<A, C, M> {
+	#[inline]
 	pub const fn new(seed: u32) -> Self {
 		Self {
 			seed,
 		}
 	}
 
+	#[inline]
 	pub const fn get(&mut self) -> u32 {
 		self.seed = self.seed.wrapping_mul(A).wrapping_add(C) % M;
 		self.seed
 	}
 }
 
-impl<const A: u32, const C: u32, const M: u32> crate::Random for Lcg32<A, C, M> {
+impl<const A: u32, const C: u32, const M: u32> crate::RandomImpl for Lcg32<A, C, M> {
+	#[inline]
 	fn random_u64(&mut self) -> u64 {
 		crate::common::u32_compose_u64(self.random_u32(), self.random_u32())
 	}
 
+	#[inline]
 	fn random_u32(&mut self) -> u32 {
 		self.get()
+	}
+
+	fn random_bytes(&mut self, dst: &mut [u8]) {
+		crate::common::bytes_from_u32(self, dst);
 	}
 }
 
@@ -139,25 +150,33 @@ pub struct Lcg64<const A: u64, const C: u64, const M: u64> {
 }
 
 impl<const A: u64, const C: u64, const M: u64> Lcg64<A, C, M> {
+	#[inline]
 	pub const fn new(seed: u64) -> Self {
 		Self {
 			seed,
 		}
 	}
 
+	#[inline]
 	pub const fn get(&mut self) -> u64 {
 		self.seed = self.seed.wrapping_mul(A).wrapping_add(C) % M;
 		self.seed
 	}
 }
 
-impl<const A: u64, const C: u64, const M: u64> crate::Random for Lcg64<A, C, M> {
+impl<const A: u64, const C: u64, const M: u64> crate::RandomImpl for Lcg64<A, C, M> {
+	#[inline]
 	fn random_u64(&mut self) -> u64 {
 		self.get()
 	}
 
+	#[inline]
 	fn random_u32(&mut self) -> u32 {
 		self.get() as u32
+	}
+
+	fn random_bytes(&mut self, dst: &mut [u8]) {
+		crate::common::bytes_from_u64(self, dst);
 	}
 }
 
@@ -173,29 +192,33 @@ pub struct Lcg128<const A: u128, const C: u128, const M: u128> {
 }
 
 impl<const A: u128, const C: u128, const M: u128> Lcg128<A, C, M> {
+	#[inline]
 	pub const fn new(seed: u128) -> Self {
 		Self {
 			seed,
 		}
 	}
 
+	#[inline]
 	pub const fn get(&mut self) -> u128 {
 		self.seed = self.seed.wrapping_mul(A).wrapping_add(C) % M;
 		self.seed
 	}
 }
 
-impl<const A: u128, const C: u128, const M: u128> crate::Random for Lcg128<A, C, M> {
-	fn random_u128(&mut self) -> u128 {
-		self.get()
-	}
-
+impl<const A: u128, const C: u128, const M: u128> crate::RandomImpl for Lcg128<A, C, M> {
+	#[inline]
 	fn random_u64(&mut self) -> u64 {
 		self.get() as u64
 	}
 
+	
 	fn random_u32(&mut self) -> u32 {
 		self.get() as u32
+	}
+
+	fn random_bytes(&mut self, dst: &mut [u8]) {
+		crate::common::bytes_from_u64(self, dst);
 	}
 }
 

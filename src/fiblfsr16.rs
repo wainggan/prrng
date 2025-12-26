@@ -29,7 +29,7 @@ impl FibLFSR16 {
 	}
 }
 
-impl crate::Random for FibLFSR16 {
+impl crate::RandomImpl for FibLFSR16 {
 	#[inline]
 	fn random_u64(&mut self) -> u64 {
 		crate::common::u32_compose_u64(self.random_u32(), self.random_u32())
@@ -39,15 +39,9 @@ impl crate::Random for FibLFSR16 {
 	fn random_u32(&mut self) -> u32 {
 		crate::common::u16_compose_u32(self.get(), self.get())
 	}
-	
-	#[inline]
-	fn random_u16(&mut self) -> u16 {
-		self.get()
-	}
 
-	#[inline]
-	fn random_u8(&mut self) -> u8 {
-		self.get() as u8
+	fn random_bytes(&mut self, dst: &mut [u8]) {
+		crate::common::bytes_from_u32(self, dst);
 	}
 }
 

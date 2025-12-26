@@ -50,22 +50,7 @@ impl<T: crate::FromRandom, R: crate::Random> Iterator for Iter<T, R> {
 	}
 }
 
-impl<T: crate::FromRandom, R: crate::Random> crate::Random for Iter<T, R> {
-	#[inline]
-	fn random_f64(&mut self) -> f64 {
-		self.inner.random_f64()
-	}
-
-	#[inline]
-	fn random_f32(&mut self) -> f32 {
-		self.inner.random_f32()
-	}
-
-	#[inline]
-	fn random_u128(&mut self) -> u128 {
-		self.inner.random_u128()
-	}
-
+impl<T: crate::FromRandom, R: crate::Random> crate::RandomImpl for Iter<T, R> {
 	#[inline]
 	fn random_u64(&mut self) -> u64 {
 		self.inner.random_u64()
@@ -77,13 +62,8 @@ impl<T: crate::FromRandom, R: crate::Random> crate::Random for Iter<T, R> {
 	}
 
 	#[inline]
-	fn random_u16(&mut self) -> u16 {
-		self.inner.random_u16()
-	}
-
-	#[inline]
-	fn random_u8(&mut self) -> u8 {
-		self.inner.random_u8()
+	fn random_bytes(&mut self, dst: &mut [u8]) {
+		self.inner.random_bytes(dst);
 	}
 }
 
