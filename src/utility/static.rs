@@ -57,7 +57,7 @@
 /// 
 /// note that the output of `Static` is not equivalent to the output of,
 /// say, [`crate::Random::random_f64()`]. be careful.
-#[derive(Debug, Clone)]
+#[derive(Clone)]
 pub struct Static<T: FnMut() -> f64> {
 	cb: T,
 }
@@ -113,6 +113,12 @@ impl<T: FnMut() -> f64> crate::RandomImpl for Static<T> {
 
 	fn random_bytes(&mut self, dst: &mut [u8]) {
 		crate::common::bytes_from_u32(self, dst);
+	}
+}
+
+impl<T: FnMut() -> f64> core::fmt::Debug for Static<T> {
+	fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+		write!(f, "Static")
 	}
 }
 

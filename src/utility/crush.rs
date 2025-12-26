@@ -80,7 +80,7 @@ where
 	H: core::hash::Hasher + core::fmt::Debug,
 {
 	fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
-		write!(f, "Crush({}, {:?}, {:?})", N, self.inner, self.hash)
+		write!(f, "Crush{}({:?}, {:?})", N, self.inner, self.hash)
 	}
 }
 

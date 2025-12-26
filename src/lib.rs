@@ -2,79 +2,69 @@
 
 #![no_std]
 
+#[cfg(test)]
+mod test;
+
 pub mod common;
 
 mod random;
 #[doc(inline)]
 pub use random::*;
 
-mod iter;
-#[doc(inline)]
-pub use iter::Iter;
 
-mod r#static;
-#[doc(inline)]
-pub use r#static::Static;
+mod utility;
 
-mod crush;
 #[doc(inline)]
-pub use crush::Crush;
+pub use utility::iter::*;
 
-pub mod buffer;
+#[doc(inline)]
+pub use utility::r#static::*;
 
-mod wichhill;
 #[doc(inline)]
-pub use wichhill::WichHill;
+pub use utility::crush::*;
 
-mod xorshift32;
 #[doc(inline)]
-pub use xorshift32::XorShift32;
+pub use utility::buffer::*;
 
-mod xorshift64;
-#[doc(inline)]
-pub use xorshift64::XorShift64;
 
-mod xorshift128p;
-#[doc(inline)]
-pub use xorshift128p::XorShift128p;
+mod algorithm;
 
-mod xoshiro256ss;
 #[doc(inline)]
-pub use xoshiro256ss::XorShift256ss;
+pub use algorithm::wichhill::*;
 
-mod chacha;
 #[doc(inline)]
-pub use chacha::ChaCha;
+pub use algorithm::xorshift32::*;
 
-mod collatzweyl;
 #[doc(inline)]
-pub use collatzweyl::CollatzWeyl64;
-#[doc(inline)]
-pub use collatzweyl::CollatzWeyl128_64;
-#[doc(inline)]
-pub use collatzweyl::CollatzWeyl128;
+pub use algorithm::xorshift64::*;
 
-mod mtwister;
 #[doc(inline)]
-pub use mtwister::MTwister;
+pub use algorithm::xorshift128p::*;
 
-mod splitmix64;
 #[doc(inline)]
-pub use splitmix64::SplitMix64;
+pub use algorithm::xoshiro256ss::*;
 
-mod pcg32;
 #[doc(inline)]
-pub use pcg32::Pcg32;
+pub use algorithm::chacha::*;
 
-pub mod lcg;
+#[doc(inline)]
+pub use algorithm::collatzweyl::*;
 
-mod fiblfsr16;
 #[doc(inline)]
-pub use fiblfsr16::FibLFSR16;
+pub use algorithm::mtwister::*;
 
-mod fiblfg8;
 #[doc(inline)]
-pub use fiblfg8::FibLFG8;
+pub use algorithm::splitmix64::*;
+
 #[doc(inline)]
-pub use fiblfg8::dornd;
+pub use algorithm::pcg32::*;
+
+#[doc(inline)]
+pub use algorithm::lcg;
+
+#[doc(inline)]
+pub use algorithm::fiblfg8::*;
+
+#[doc(inline)]
+pub use algorithm::fiblfsr16::*;
 

@@ -8,7 +8,7 @@ pub struct Pcg32 {
 
 impl Pcg32 {
 	#[inline]
-	pub fn new_raw(seed: u64, id: u64) -> Self {
+	pub const fn new_raw(seed: u64, id: u64) -> Self {
 		Self {
 			state: seed,
 			index: id,
@@ -16,7 +16,7 @@ impl Pcg32 {
 	}
 
 	#[inline]
-	pub fn new(seed: u64, id: u64) -> Self {
+	pub const fn new(seed: u64, id: u64) -> Self {
 		let mut ret = Self::new_raw(0, (id << 1) | 1);
 		ret.get();
 		ret.state = ret.state.wrapping_add(seed);
@@ -25,7 +25,7 @@ impl Pcg32 {
 	}
 
 	#[inline]
-	pub fn get(&mut self) -> u32 {
+	pub const fn get(&mut self) -> u32 {
 		let prev: u64 = self.state;
 
 		self.state = prev

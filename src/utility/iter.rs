@@ -69,7 +69,7 @@ impl<T: crate::FromRandom, R: crate::Random> crate::RandomImpl for Iter<T, R> {
 
 impl<T: crate::FromRandom, R: crate::Random + core::fmt::Debug> core::fmt::Debug for Iter<T, R> {
 	fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
-		write!(f, "Iter({:?})", self.inner)
+		write!(f, "Iter<{}>({:?})", core::any::type_name::<T>(), self.inner)
 	}
 }
 

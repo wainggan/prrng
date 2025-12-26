@@ -11,7 +11,7 @@ pub struct CollatzWeyl64 {
 
 impl CollatzWeyl64 {
 	#[inline]
-	pub fn new_raw(state: u64, seed: u64) -> Self {
+	pub const fn new_raw(state: u64, seed: u64) -> Self {
 		Self {
 			a: 0,
 			weyl: 0,
@@ -21,19 +21,19 @@ impl CollatzWeyl64 {
 	}
 
 	#[inline]
-	pub fn new_one(seed: u64) -> Self {
+	pub const fn new_one(seed: u64) -> Self {
 		// seed should always be odd
 		Self::new_raw(0, seed | 1)
 	}
 
 	#[inline]
-	pub fn new_two(state: u64, seed: u64) -> Self {
+	pub const fn new_two(state: u64, seed: u64) -> Self {
 		// seed should always be odd
 		Self::new_raw(state, seed | 1)
 	}
 
 	#[inline]
-	pub fn get(&mut self) -> u64 {
+	pub const fn get(&mut self) -> u64 {
 		self.a = self.a.wrapping_add(self.x);
 		self.weyl = self.weyl.wrapping_add(self.s);
 		self.x = (self.x >> 1).wrapping_mul(self.a | 1) ^ self.weyl;
@@ -74,7 +74,7 @@ pub struct CollatzWeyl128_64 {
 
 impl CollatzWeyl128_64 {
 	#[inline]
-	pub fn new_raw(state: u128, seed: u64) -> Self {
+	pub const fn new_raw(state: u128, seed: u64) -> Self {
 		Self {
 			a: 0,
 			weyl: 0,
@@ -84,13 +84,13 @@ impl CollatzWeyl128_64 {
 	}
 
 	#[inline]
-	pub fn new_one(seed: u64) -> Self {
+	pub const fn new_one(seed: u64) -> Self {
 		// seed should always be odd
 		Self::new_raw(0, seed | 1)
 	}
 
 	#[inline]
-	pub fn new_two(state: u128, seed: u64) -> Self {
+	pub const fn new_two(state: u128, seed: u64) -> Self {
 		Self::new_raw(
 			state,
 			// seed should always be odd
@@ -99,7 +99,7 @@ impl CollatzWeyl128_64 {
 	}
 
 	#[inline]
-	pub fn get(&mut self) -> u128 {
+	pub const fn get(&mut self) -> u128 {
 		self.a = (self.a as u128).wrapping_add(self.x) as u64;
 		self.weyl = self.weyl.wrapping_add(self.s);
 		self.x = (self.x | 1).wrapping_mul((self.a >> 1) as u128) ^ self.weyl as u128;
@@ -139,7 +139,7 @@ pub struct CollatzWeyl128 {
 
 impl CollatzWeyl128 {
 	#[inline]
-	pub fn new_raw(state: u128, seed: u128) -> Self {
+	pub const fn new_raw(state: u128, seed: u128) -> Self {
 		Self {
 			a: 0,
 			weyl: 0,
@@ -149,13 +149,13 @@ impl CollatzWeyl128 {
 	}
 
 	#[inline]
-	pub fn new_one(seed: u128) -> Self {
+	pub const fn new_one(seed: u128) -> Self {
 		// seed should always be odd
 		Self::new_raw(0, seed | 1)
 	}
 
 	#[inline]
-	pub fn new_two(state: u128, seed: u128) -> Self {
+	pub const fn new_two(state: u128, seed: u128) -> Self {
 		Self::new_raw(
 			state,
 			// seed should always be odd
@@ -164,7 +164,7 @@ impl CollatzWeyl128 {
 	}
 
 	#[inline]
-	pub fn get(&mut self) -> u128 {
+	pub const fn get(&mut self) -> u128 {
 		self.a = self.a.wrapping_add(self.x);
 		self.weyl = self.weyl.wrapping_add(self.s);
 		self.x = (self.x >> 1).wrapping_mul(self.a | 1) ^ self.weyl;

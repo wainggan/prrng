@@ -19,15 +19,17 @@ pub struct MTwister {
 }
 
 impl MTwister {
-	pub fn new(seed: u32) -> Self {
+	pub const fn new(seed: u32) -> Self {
 		let mut buf = [0u32; STATE_N];
 
 		buf[0] = seed;
 		
-		for i in 1..buf.len() {
+		let mut i = 1;
+		while i < buf.len() {
 			buf[i] = 1812433253u32
 				.wrapping_mul(buf[i - 1] ^ (buf[i - 1] >> 30))
 				.wrapping_add(i as u32);
+			i += 1;
 		}
 
 		Self {
@@ -36,7 +38,7 @@ impl MTwister {
 		}
 	}
 	
-	pub fn run(&mut self) {
+	pub const fn run(&mut self) {
 		let mut kk = 0;
 
 		while kk < STATE_N - STATE_M {
@@ -57,7 +59,7 @@ impl MTwister {
 		self.index = 0;
 	}
 
-	fn temper(mut value: u32) -> u32 {
+	const fn temper(mut value: u32) -> u32 {
 		value ^= value >> 11;
 		value ^= (value << 7) & MASK_B;
 		value ^= (value << 15) & MASK_C;
@@ -65,7 +67,7 @@ impl MTwister {
 		value
 	}
 
-	pub fn get_checked(&mut self) -> Option<u32> {
+	pub const fn get_checked(&mut self) -> Option<u32> {
 		if self.index >= STATE_N {
 			None
 		} else {
@@ -75,7 +77,7 @@ impl MTwister {
 		}
 	}
 
-	pub fn get(&mut self) -> u32 {
+	pub const fn get(&mut self) -> u32 {
 		if self.index >= STATE_N {
 			self.run();
 		}

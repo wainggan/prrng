@@ -137,6 +137,12 @@ impl<T: crate::FromRandom, const N: usize, R: crate::Random> Buffer<T, N, R> {
 	}
 }
 
+impl<T: crate::FromRandom, const N: usize, R: crate::Random + core::fmt::Debug> core::fmt::Debug for Buffer<T, N, R> {
+	fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+		write!(f, "Buffer<[{}; {}]>({:?})", core::any::type_name::<T>(), N, self.inner)
+	}
+}
+
 // used for safer drop semantics
 struct BufferDropable<T: crate::FromRandom, const N: usize>{
 	buf: [core::mem::MaybeUninit<T>; N],
@@ -295,6 +301,12 @@ impl<const N: usize, R: crate::Random> crate::RandomImpl for Buffer8<N, R> {
 		for i in dst {
 			*i = self.get();
 		}
+	}
+}
+
+impl<const N: usize, R: crate::Random + core::fmt::Debug> core::fmt::Debug for Buffer8<N, R> {
+	fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+		write!(f, "Buffer8<[u8; {}]>({:?})", N, self.inner)
 	}
 }
 
