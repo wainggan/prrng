@@ -1,8 +1,9 @@
 //! this module provides a few common, simple utility functions you might
-//! find useful when implementing your own [`crate::Random`] types.
+//! find useful when implementing your own [`crate::RandomImpl`] types.
 
 /// construct a `u64` with [`crate::RandomImpl::random_bytes()`] with
 /// little-endian ordering.
+#[inline(always)]
 pub fn u64_from_bytes<R: crate::RandomImpl>(random: &mut R) -> u64 {
 	let mut bytes = [0u8; _];
 	random.random_bytes(&mut bytes);
@@ -11,6 +12,7 @@ pub fn u64_from_bytes<R: crate::RandomImpl>(random: &mut R) -> u64 {
 
 /// construct a `u32` with [`crate::RandomImpl::random_bytes()`] with
 /// little-endian ordering.
+#[inline(always)]
 pub fn u32_from_bytes<R: crate::RandomImpl>(random: &mut R) -> u32 {
 	let mut bytes = [0u8; _];
 	random.random_bytes(&mut bytes);
@@ -47,6 +49,7 @@ pub fn u32_from_bytes<R: crate::RandomImpl>(random: &mut R) -> u32 {
 ///     ],
 /// );
 /// ```
+#[inline(always)]
 pub fn bytes_from_u64<R: crate::RandomImpl>(random: &mut R, dst: &mut [u8]) {
 	let (chunks, extra) = dst.as_chunks_mut();
 
@@ -95,6 +98,7 @@ pub fn bytes_from_u64<R: crate::RandomImpl>(random: &mut R, dst: &mut [u8]) {
 ///     ],
 /// );
 /// ```
+#[inline(always)]
 pub fn bytes_from_u32<R: crate::RandomImpl>(random: &mut R, dst: &mut [u8]) {
 	let (chunks, extra) = dst.as_chunks_mut();
 
