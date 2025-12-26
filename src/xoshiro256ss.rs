@@ -53,16 +53,6 @@ impl crate::Random for XorShift256ss {
 	}
 }
 
-impl Iterator for XorShift256ss {
-	type Item = f64;
-
-	#[inline]
-	fn next(&mut self) -> Option<Self::Item> {
-		use crate::Random;
-		Some(self.random_f64())
-	}
-}
-
 impl core::fmt::Debug for XorShift256ss {
 	fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
 		write!(f, "XorShift256ss")

@@ -20,13 +20,7 @@ mod crush;
 #[doc(inline)]
 pub use crush::Crush;
 
-mod buffered;
-#[doc(inline)]
-pub use buffered::Buffer32;
-#[doc(inline)]
-pub use buffered::Buffer64;
-#[doc(inline)]
-pub use buffered::Buffer8;
+pub mod buffer;
 
 mod wichhill;
 #[doc(inline)]

@@ -32,15 +32,6 @@ impl<const A: u8, const C: u8, const M: u8,> Lcg8<A, C, M> {
 	}
 }
 
-impl<const A: u8, const C: u8, const M: u8> Iterator for Lcg8<A, C, M> {
-	type Item = f64;
-
-	fn next(&mut self) -> Option<Self::Item> {
-		use crate::Random;
-		Some(self.random_f64())
-	}
-}
-
 impl<const A: u8, const C: u8, const M: u8> crate::Random for Lcg8<A, C, M> {
 	fn random_u64(&mut self) -> u64 {
 		crate::common::u32_compose_u64(self.random_u32(), self.random_u32())
@@ -81,15 +72,6 @@ impl<const A: u16, const C: u16, const M: u16> Lcg16<A, C, M> {
 	pub const fn get(&mut self) -> u16 {
 		self.seed = self.seed.wrapping_mul(A).wrapping_add(C) % M;
 		self.seed
-	}
-}
-
-impl<const A: u16, const C: u16, const M: u16> Iterator for Lcg16<A, C, M> {
-	type Item = f64;
-
-	fn next(&mut self) -> Option<Self::Item> {
-		use crate::Random;
-		Some(self.random_f64())
 	}
 }
 
@@ -135,15 +117,6 @@ impl<const A: u32, const C: u32, const M: u32> Lcg32<A, C, M> {
 	}
 }
 
-impl<const A: u32, const C: u32, const M: u32> Iterator for Lcg32<A, C, M> {
-	type Item = f64;
-
-	fn next(&mut self) -> Option<Self::Item> {
-		use crate::Random;
-		Some(self.random_f64())
-	}
-}
-
 impl<const A: u32, const C: u32, const M: u32> crate::Random for Lcg32<A, C, M> {
 	fn random_u64(&mut self) -> u64 {
 		crate::common::u32_compose_u64(self.random_u32(), self.random_u32())
@@ -178,15 +151,6 @@ impl<const A: u64, const C: u64, const M: u64> Lcg64<A, C, M> {
 	}
 }
 
-impl<const A: u64, const C: u64, const M: u64> Iterator for Lcg64<A, C, M> {
-	type Item = f64;
-
-	fn next(&mut self) -> Option<Self::Item> {
-		use crate::Random;
-		Some(self.random_f64())
-	}
-}
-
 impl<const A: u64, const C: u64, const M: u64> crate::Random for Lcg64<A, C, M> {
 	fn random_u64(&mut self) -> u64 {
 		self.get()
@@ -218,15 +182,6 @@ impl<const A: u128, const C: u128, const M: u128> Lcg128<A, C, M> {
 	pub const fn get(&mut self) -> u128 {
 		self.seed = self.seed.wrapping_mul(A).wrapping_add(C) % M;
 		self.seed
-	}
-}
-
-impl<const A: u128, const C: u128, const M: u128> Iterator for Lcg128<A, C, M> {
-	type Item = f64;
-
-	fn next(&mut self) -> Option<Self::Item> {
-		use crate::Random;
-		Some(self.random_f64())
 	}
 }
 

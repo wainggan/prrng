@@ -1,33 +1,56 @@
 
+/// iterator of [`crate::Random`].
+/// 
+/// this type simply implements [`Iterator`], where `T` is the return value
+/// of [`Iterator::next()`] using [`crate::FromRandom`].
+/// 
+/// ```
+/// # use prrng::Iter;
+/// # use prrng::XorShift32;
+/// let mut rng = XorShift32::new(1);
+/// 
+/// // either explicitly wrap it
+/// let iter = Iter::<(), _>::new(&mut rng);
+/// 
+/// // or use the `Random` trait
+/// use prrng::Random;
+/// let iter = rng.random_iter::<()>();
+/// ```
+/// 
+/// notably, this type *also* implements `Random`. this likely isn't useful.
 #[derive(Clone)]
-pub struct Iter<R: crate::Random> {
+pub struct Iter<T: crate::FromRandom, R: crate::Random> {
 	inner: R,
+	_marker: core::marker::PhantomData<T>,
 }
 
-impl<R: crate::Random> Iter<R> {
+impl<T: crate::FromRandom, R: crate::Random> Iter<T, R> {
+	/// construct a new `Iter` from an rng.
 	#[inline]
 	pub fn new(inner: R) -> Self {
 		Self {
 			inner,
+			_marker: core::marker::PhantomData,
 		}
 	}
 
+	/// consume `self` and return the inner rng.
 	#[inline]
 	pub fn unwrap(self) -> R {
 		self.inner
 	}
 }
 
-impl<R: crate::Random> Iterator for Iter<R> {
-	type Item = f64;
+impl<T: crate::FromRandom, R: crate::Random> Iterator for Iter<T, R> {
+	type Item = T;
 
 	#[inline]
 	fn next(&mut self) -> Option<Self::Item> {
-		self.inner.next()
+		Some(self.inner.random())
 	}
 }
 
-impl<R: crate::Random> crate::Random for Iter<R> {
+impl<T: crate::FromRandom, R: crate::Random> crate::Random for Iter<T, R> {
 	#[inline]
 	fn random_f64(&mut self) -> f64 {
 		self.inner.random_f64()
@@ -64,7 +87,7 @@ impl<R: crate::Random> crate::Random for Iter<R> {
 	}
 }
 
-impl<R: crate::Random + core::fmt::Debug> core::fmt::Debug for Iter<R> {
+impl<T: crate::FromRandom, R: crate::Random + core::fmt::Debug> core::fmt::Debug for Iter<T, R> {
 	fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
 		write!(f, "Iter({:?})", self.inner)
 	}

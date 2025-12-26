@@ -1,13 +1,14 @@
+//! utility type for caching many [`crate::Random`] calls.
+//! 
+//! some prng algorithms can be slow. this type allows you to preemptively
+//! fill a buffer full of random values, allowing for trivially fast
+//! "generation" until the buffer has been fully consumed and needs to be refilled
+//! with more random values.
+//! 
+//! internally, this uses a normal rust array for the buffer, and therefore
+//! should be heap-allocated (such as with `Box`) when using larger buffers.
 
-/// utility type for caching many [`crate::Random`] calls.
-/// 
-/// some prng algorithms can be slow. this type allows you to preemptively
-/// fill a buffer full of random values, allowing for trivially fast
-/// "generation" until the buffer has been fully consumed and needs to be refilled
-/// with more random values.
-/// 
-/// internally, this uses a normal `[u32; N]` for the buffer, and therefore
-/// should be heap-allocated (such as with `Box`) for larger buffers.
+/// cache `u32` values. see the [module level documentation](self) for more information.
 pub struct Buffer32<const N: usize, R: crate::Random> {
 	inner: R,
 	buf: [u32; N],
@@ -79,19 +80,7 @@ impl<const N: usize, R: crate::Random> crate::Random for Buffer32<N, R> {
 	}
 }
 
-impl<const N: usize, R: crate::Random> Iterator for Buffer32<N, R> {
-	type Item = f64;
-
-	#[inline]
-	fn next(&mut self) -> Option<Self::Item> {
-		use crate::Random;
-		Some(self.random_f64())
-	}
-}
-
-
-
-/// utility type for caching many [`crate::Random`] calls.
+/// cache `u64` values. see the [module level documentation](self) for more information.
 pub struct Buffer64<const N: usize, R: crate::Random> {
 	inner: R,
 	buf: [u64; N],
@@ -150,16 +139,7 @@ impl<const N: usize, R: crate::Random> crate::Random for Buffer64<N, R> {
 	}
 }
 
-impl<const N: usize, R: crate::Random> Iterator for Buffer64<N, R> {
-	type Item = f64;
-
-	#[inline]
-	fn next(&mut self) -> Option<Self::Item> {
-		use crate::Random;
-		Some(self.random_f64())
-	}
-}
-
+/// cache `u8` values. see the [module level documentation](self) for more information.
 pub struct Buffer8<const N: usize, R: crate::Random> {
 	inner: R,
 	buf: [u8; N],
@@ -237,15 +217,4 @@ impl<const N: usize, R: crate::Random> crate::Random for Buffer8<N, R> {
 		self.get()
 	}
 }
-
-impl<const N: usize, R: crate::Random> Iterator for Buffer8<N, R> {
-	type Item = f64;
-
-	#[inline]
-	fn next(&mut self) -> Option<Self::Item> {
-		use crate::Random;
-		Some(self.random_f64())
-	}
-}
-
 

@@ -119,12 +119,3 @@ impl<T: FnMut() -> f64> crate::Random for Static<T> {
 	}
 }
 
-impl<T: FnMut() -> f64> Iterator for Static<T> {
-	type Item = f64;
-
-	#[inline]
-	fn next(&mut self) -> Option<Self::Item> {
-		Some(self.get())
-	}
-}
-

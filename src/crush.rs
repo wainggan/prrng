@@ -2,7 +2,7 @@
 /// utility type for accumulating [`crate::Random`] calls.
 /// 
 /// many prng algorithms are not ["cryptographically secure"](https://en.wikipedia.org/wiki/Cryptographically_secure_pseudorandom_number_generator).
-/// that is, given outputs of the algorithm, future outputs can be mathematically predicted.
+/// that is, given outputs of the algorithm, future or past outputs can be mathematically predicted.
 /// 
 /// `Crush` doesn't help with this. this type wraps a [`crate::Random`] type along with a
 /// [`core::hash::Hasher`] type. all random getters are set to insert a random value
@@ -10,7 +10,7 @@
 /// this may [improve the percieved randomness of an algorithm](https://en.wikipedia.org/wiki/Randomness_extractor).
 /// 
 /// that being said, this is not a replacement for proper security. do not use this in
-/// lieu of a properly, provably cryptographically secure rng like [`crate::ChaCha`].
+/// lieu of a properly, provably cryptographically secure rng like, say, [`crate::ChaCha`].
 #[derive(Clone)]
 pub struct Crush<const N: usize, R, H>
 where R: crate::Random, H: core::hash::Hasher {
@@ -20,6 +20,21 @@ where R: crate::Random, H: core::hash::Hasher {
 
 impl<const N: usize, R, H> Crush<N, R, H>
 where R: crate::Random, H: core::hash::Hasher {
+	/// construct a new `Crush`.
+	/// 
+	/// ## examples
+	/// 
+	/// ```
+	/// # use prrng::MTwister;
+	/// # use prrng::Crush;
+	/// # extern crate std;
+	/// use prrng::Random;
+	/// 
+	/// let rng = MTwister::new(0);
+	/// let hasher = std::hash::DefaultHasher::new();
+	/// 
+	/// let crush = rng.random_into_crush::<4>(hasher);
+	/// ```
 	#[inline]
 	pub const fn new(inner: R, hasher: H) -> Self {
 		Self {
@@ -28,11 +43,13 @@ where R: crate::Random, H: core::hash::Hasher {
 		}
 	}
 
+	/// consume `self` and return the inner rng and hasher.
 	#[inline]
 	pub fn unwrap(self) -> (R, H) {
 		(self.inner, self.hash)
 	}
 
+	/// write into the hasher `N` times and return the value.
 	pub fn get(&mut self) -> u64 {
 		for _ in 0..N {
 			self.hash.write_u64(self.inner.random_u64());
@@ -50,17 +67,6 @@ where R: crate::Random, H: core::hash::Hasher {
 	#[inline]
 	fn random_u32(&mut self) -> u32 {
 		self.get() as u32
-	}
-}
-
-impl<const N: usize, R, H> Iterator for Crush<N, R, H>
-where R: crate::Random, H: core::hash::Hasher {
-	type Item = f64;
-
-	#[inline]
-	fn next(&mut self) -> Option<Self::Item> {
-		use crate::Random;
-		Some(self.random_f64())
 	}
 }
 

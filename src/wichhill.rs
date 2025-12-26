@@ -91,15 +91,6 @@ impl crate::Random for WichHill {
 	}
 }
 
-impl Iterator for WichHill {
-	type Item = f64;
-
-	#[inline]
-	fn next(&mut self) -> Option<Self::Item> {
-		Some(self.get())
-	}
-}
-
 impl core::fmt::Debug for WichHill {
 	fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
 		write!(f, "WichHill")

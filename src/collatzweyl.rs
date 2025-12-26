@@ -54,16 +54,6 @@ impl crate::Random for CollatzWeyl64 {
 	}
 }
 
-impl Iterator for CollatzWeyl64 {
-	type Item = f64;
-
-	#[inline]
-	fn next(&mut self) -> Option<Self::Item> {
-		use crate::Random;
-		Some(self.random_f64())
-	}
-}
-
 impl core::fmt::Debug for CollatzWeyl64 {
 	fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
 		write!(f, "CollatzWeyl64")
@@ -140,16 +130,6 @@ impl crate::Random for CollatzWeyl128_64 {
 	}
 }
 
-impl Iterator for CollatzWeyl128_64 {
-	type Item = f64;
-
-	#[inline]
-	fn next(&mut self) -> Option<Self::Item> {
-		use crate::Random;
-		Some(self.random_f64())
-	}
-}
-
 impl core::fmt::Debug for CollatzWeyl128_64 {
 	fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
 		write!(f, "CollatzWeyl128_64")
@@ -223,16 +203,6 @@ impl crate::Random for CollatzWeyl128 {
 	#[inline]
 	fn random_u8(&mut self) -> u8 {
 		self.get() as u8
-	}
-}
-
-impl Iterator for CollatzWeyl128 {
-	type Item = f64;
-
-	#[inline]
-	fn next(&mut self) -> Option<Self::Item> {
-		use crate::Random;
-		Some(self.random_f64())
 	}
 }
 

@@ -50,16 +50,6 @@ impl crate::Random for Pcg32 {
 	}
 }
 
-impl Iterator for Pcg32 {
-	type Item = f64;
-
-	#[inline]
-	fn next(&mut self) -> Option<Self::Item> {
-		use crate::Random;
-		Some(self.random_f64())
-	}
-}
-
 impl core::fmt::Debug for Pcg32 {
 	fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
 		write!(f, "Pcg32")

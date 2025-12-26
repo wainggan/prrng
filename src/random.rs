@@ -12,8 +12,8 @@
 /// [`Random::random_u128()`], [`Random::random_u16()`],
 /// [`Random::random_u8()`], and [`Random::random_bool()`].
 /// overriding any other method is discouraged.
-pub trait Random: Iterator<Item = f64> {
-	/// returns a new random value.
+pub trait Random {
+	/// returns a new random value `T`.
 	/// 
 	/// implement [`FromRandom`] to have this method work on your own types.  
 	/// 
@@ -49,43 +49,43 @@ pub trait Random: Iterator<Item = f64> {
 		T::from_random(self)
 	}
 
-	/// returns a new f64.
+	/// returns a new `f64`.
 	#[inline]
 	fn random_f64(&mut self) -> f64 {
 		crate::common::u64_normalize_f64(self.random_u64())
 	}
 
-	/// returns a new f32.
+	/// returns a new `f32`.
 	#[inline]
 	fn random_f32(&mut self) -> f32 {
 		crate::common::u32_normalize_f32(self.random_u32())
 	}
 
-	/// returns a new u128.
+	/// returns a new `u128`.
 	#[inline]
 	fn random_u128(&mut self) -> u128 {
 		crate::common::u64_compose_u128(self.random_u64(), self.random_u64())
 	}
 
-	/// returns a new u64.
+	/// returns a new `u64`.
 	fn random_u64(&mut self) -> u64;
 
-	/// returns a new u32.
+	/// returns a new `u32`.
 	fn random_u32(&mut self) -> u32;
 
-	/// returns a new u16.
+	/// returns a new `u16`.
 	#[inline]
 	fn random_u16(&mut self) -> u16 {
 		self.random_u32() as u16
 	}
 
-	/// returns a new u8.
+	/// returns a new `u8`.
 	#[inline]
 	fn random_u8(&mut self) -> u8 {
 		self.random_u32() as u8
 	}
 
-	/// returns a new bool.
+	/// returns a new `bool`.
 	#[inline]
 	fn random_bool(&mut self) -> bool {
 		self.random_u8() & 1 == 1
@@ -110,14 +110,14 @@ pub trait Random: Iterator<Item = f64> {
 		}
 	}
 
-	/// fill a buffer with random values.
+	/// fill a buffer with random values `T`.
 	fn random_fill<T: FromRandom>(&mut self, dst: &mut [T]) where Self: Sized {
 		for i in dst {
 			*i = self.random();
 		}
 	}
 
-	/// fill an uninitiaized buffer with random values.
+	/// fill an uninitiaized buffer with random values `T`.
 	/// by the end of this method, `dst` will be fully initialized.
 	fn random_fill_uninit<T: FromRandom>(&mut self, dst: &mut [core::mem::MaybeUninit<T>]) where Self: Sized {
 		for i in dst {
@@ -125,7 +125,7 @@ pub trait Random: Iterator<Item = f64> {
 		}
 	}
 
-	#[inline]
+	/// returns a new `u128`, uniformly distributed within `0 .. bound`.
 	fn random_u128_bound(&mut self, bound: u128) -> u128 {
 		let threshold = bound.wrapping_neg() % bound;
 		loop {
@@ -136,7 +136,7 @@ pub trait Random: Iterator<Item = f64> {
 		}
 	}
 
-	#[inline]
+	/// returns a new `u128`, uniformly distributed within `0 .. bound`.
 	fn random_u64_bound(&mut self, bound: u64) -> u64 {
 		let threshold = bound.wrapping_neg() % bound;
 		loop {
@@ -147,7 +147,7 @@ pub trait Random: Iterator<Item = f64> {
 		}
 	}
 
-	#[inline]
+	/// returns a new `u128`, uniformly distributed within `0 .. bound`.
 	fn random_u32_bound(&mut self, bound: u32) -> u32 {
 		let threshold = bound.wrapping_neg() % bound;
 		loop {
@@ -158,7 +158,7 @@ pub trait Random: Iterator<Item = f64> {
 		}
 	}
 
-	#[inline]
+	/// returns a new `u128`, uniformly distributed within `0 .. bound`.
 	fn random_u16_bound(&mut self, bound: u16) -> u16 {
 		let threshold = bound.wrapping_neg() % bound;
 		loop {
@@ -169,7 +169,7 @@ pub trait Random: Iterator<Item = f64> {
 		}
 	}
 
-	#[inline]
+	/// returns a new `u128`, uniformly distributed within `0 .. bound`.
 	fn random_u8_bound(&mut self, bound: u8) -> u8 {
 		let threshold = bound.wrapping_neg() % bound;
 		loop {
@@ -180,64 +180,74 @@ pub trait Random: Iterator<Item = f64> {
 		}
 	}
 
-	/// derived from a call to [`Random::random_f64()`].
+	/// returns a new `f64`, uniformly distributed within `range`.
 	#[inline]
 	fn random_range(&mut self, range: core::ops::Range<f64>) -> f64 {
 		range.start + self.random_f64() * (range.end - range.start)
 	}
 
+	/// consume `self`, wrapping it in an iterator [`crate::Iter`]. its [`Iterator::next()`] returns `T`.
 	#[inline]
-	fn random_into_iter(self) -> crate::Iter<Self> where Self: Sized {
+	fn random_into_iter<T: crate::FromRandom>(self) -> crate::Iter<T, Self> where Self: Sized {
 		crate::Iter::new(self)
 	}
 
+	/// wrap `&mut self` in an iterator [`crate::Iter`]. its [`Iterator::next()`] returns `T`.
 	#[inline]
-	fn random_iter(&mut self) -> crate::Iter<&mut Self> where Self: Sized {
+	fn random_iter<T: crate::FromRandom>(&mut self) -> crate::Iter<T, &mut Self> where Self: Sized {
 		crate::Iter::new(self)
 	}
 
+	/// consume `self`, wrapping it in a [`crate::buffer::Buffer64`] with size `N`.
 	#[inline]
 	fn random_into_buffer64<const N: usize>(self)
-		-> crate::Buffer64<N, Self> where Self: Sized
+		-> crate::buffer::Buffer64<N, Self> where Self: Sized
 	{
-		crate::Buffer64::new(self)
+		crate::buffer::Buffer64::new(self)
 	}
 
+	/// wrap `&mut self` in a [`crate::buffer::Buffer64`] with size `N`.
 	#[inline]
 	fn random_buffer64<const N: usize>(&mut self)
-		-> crate::Buffer64<N, &mut Self> where Self: Sized
+		-> crate::buffer::Buffer64<N, &mut Self> where Self: Sized
 	{
-		crate::Buffer64::new(self)
+		crate::buffer::Buffer64::new(self)
 	}
 
+	/// consume `self`, wrapping it in a [`crate::buffer::Buffer32`] with size `N`.
 	#[inline]
 	fn random_into_buffer32<const N: usize>(self)
-		-> crate::Buffer32<N, Self> where Self: Sized
+		-> crate::buffer::Buffer32<N, Self> where Self: Sized
 	{
-		crate::Buffer32::new(self)
+		crate::buffer::Buffer32::new(self)
 	}
 
+	/// wrap `&mut self` in a [`crate::buffer::Buffer32`] with size `N`.
 	#[inline]
 	fn random_buffer32<const N: usize>(&mut self)
-		-> crate::Buffer32<N, &mut Self> where Self: Sized
+		-> crate::buffer::Buffer32<N, &mut Self> where Self: Sized
 	{
-		crate::Buffer32::new(self)
+		crate::buffer::Buffer32::new(self)
 	}
 
+	/// consume `self`, wrapping it in a [`crate::buffer::Buffer8`] with size `N`.
 	#[inline]
 	fn random_into_buffer8<const N: usize>(self)
-		-> crate::Buffer8<N, Self> where Self: Sized
+		-> crate::buffer::Buffer8<N, Self> where Self: Sized
 	{
-		crate::Buffer8::new(self)
+		crate::buffer::Buffer8::new(self)
 	}
 
+	/// wrap `&mut self` in a [`crate::buffer::Buffer8`] with size `N`.
 	#[inline]
 	fn random_buffer8<const N: usize>(&mut self)
-		-> crate::Buffer8<N, &mut Self> where Self: Sized
+		-> crate::buffer::Buffer8<N, &mut Self> where Self: Sized
 	{
-		crate::Buffer8::new(self)
+		crate::buffer::Buffer8::new(self)
 	}
 
+	/// consume `self`, wrapping it in a [`crate::Crush`], where `N` is how many
+	/// hashes are run per value.
 	#[inline]
 	fn random_into_crush<const N: usize>(self, hasher: impl core::hash::Hasher)
 		-> crate::Crush<N, Self, impl core::hash::Hasher> where Self: Sized
@@ -245,6 +255,8 @@ pub trait Random: Iterator<Item = f64> {
 		crate::Crush::new(self, hasher)
 	}
 
+	/// wrap `&mut self` in a [`crate::Crush`], where `N` is how many
+	/// hashes are run per value.
 	#[inline]
 	fn random_crush<const N: usize>(&mut self, hasher: impl core::hash::Hasher)
 		-> crate::Crush<N, &mut Self, impl core::hash::Hasher> where Self: Sized
@@ -576,14 +588,14 @@ mod test {
 	#[test]
 	fn test_dyn() {
 		let _object: &mut dyn crate::Random = &mut crate::Static::new(|| 0.0);
-		let _object: &mut dyn crate::Random = &mut crate::Static::new(|| 0.0).random_iter();
+		let _object: &mut dyn crate::Random = &mut crate::Static::new(|| 0.0).random_iter::<()>();
 	}
 
 	#[test]
 	fn test_iter() {
 		let mut rng = crate::Static::new(|| 0.0);
 
-		for i in rng.random_iter().take(4) {
+		for i in rng.random_iter::<f64>().take(4) {
 			assert_eq!(i, 0.0);
 		}
 	}

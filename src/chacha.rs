@@ -232,16 +232,6 @@ impl<const N: u8> crate::Random for ChaCha<N> {
 	}
 }
 
-impl<const N: u8> Iterator for ChaCha<N> {
-	type Item = f64;
-	
-	#[inline]
-	fn next(&mut self) -> Option<Self::Item> {
-		use crate::Random;
-		Some(self.random_f64())
-	}
-}
-
 impl<const N: u8> core::fmt::Debug for ChaCha<N> {
 	fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
 		write!(f, "ChaCha{}", N)

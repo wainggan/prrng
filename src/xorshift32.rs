@@ -99,16 +99,6 @@ impl crate::Random for XorShift32 {
 	}
 }
 
-impl Iterator for XorShift32 {
-	type Item = f64;
-
-	#[inline]
-	fn next(&mut self) -> Option<Self::Item> {
-		use crate::Random;
-		Some(self.random_f64())
-	}
-}
-
 impl core::fmt::Debug for XorShift32 {
 	fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
 		write!(f, "XorShift32")

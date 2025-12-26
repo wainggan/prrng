@@ -15,9 +15,9 @@ fn main() {
     assert_eq!(rng.get(), 270369u32);
     assert_eq!(rng.get(), 67634689u32);
 
-    // iterator
-    assert_eq!(rng.next(), Some(0.7912035671411848));
-    assert_eq!(rng.next(), Some(0.5683147178403836));
+    let mut iter = rng.random_iter();
+    assert_eq!(iter.next(), Some(0.7912035671411848));
+    assert_eq!(iter.next(), Some(0.5683147178403836));
 
     // utility functions
     assert_eq!(rng.random_range(8.0..16.0) as u32, 9);
