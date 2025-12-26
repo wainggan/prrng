@@ -1,8 +1,14 @@
 [package]
 name = "prrng"
-version = "0.2.0"
+
+version = "0.3.0"
 edition = "2024"
+rust-version = "1.88.0"
+
 description = "psuedo-random number generation"
+categories = ["no-std"]
+keywords = ["random"]
+
 readme = "readme.md"
 license = "Apache-2.0"
 repository = "https://github.com/wainggan/prrng.git"
