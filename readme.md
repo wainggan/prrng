@@ -25,7 +25,7 @@ fn main() {
 }
 ```
 
-prrng is for fun, and mainly intended to have minimal and extremely simple implementations of various rng algorithms, including popular ones like some xorshift variants or ChaCha, and including esoteric ones like a recreation of the infamous RANDU function, or even the rng used in BBC Elite. all while being completely `no_std` and dependency-free.
+prrng is for fun, and mainly intended to have minimal and extremely simple implementations of various rng algorithms, including popular ones like some xorshift variants or ChaCha, and including esoteric ones like a recreation of the infamous RANDU function, or even the rng used in BBC Elite. all while being completely `no_std`, mostly `const fn`, and dependency-free.
 
 everything here is best effort.
 

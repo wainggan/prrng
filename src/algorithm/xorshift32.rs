@@ -19,7 +19,7 @@
 /// ```
 #[derive(Clone)]
 pub struct XorShift32 {
-	seed: u32
+	seed: u32,
 }
 
 impl XorShift32 {
