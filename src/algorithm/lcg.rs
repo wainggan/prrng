@@ -229,25 +229,36 @@ impl<const A: u128, const C: u128, const M: u128> core::fmt::Debug for Lcg128<A,
 }
 
 // https://www.ams.org/journals/mcom/1999-68-225/S0025-5718-99-00996-5/S0025-5718-99-00996-5.pdf
-pub const LECUYER8: Lcg8<55, 0, 251> = Lcg8::new(1);
-pub const LECUYER16: Lcg16<17364, 0, 65521> = Lcg16::new(1);
+pub type Lecuyer8 = Lcg8<55, 0, 251>;
+pub type Lecuyer16 = Lcg16<17364, 0, 65521>;
 
-// old version
-pub const MINSTD88: Lcg32<16807, 0, 2147483647> = Lcg32::new(1);
+/// ```
+/// # use prrng::lcg::MINSTD88;
+/// let mut rng = MINSTD88::new(1);
+/// assert_eq!(rng.get(), 16807);
+/// assert_eq!(rng.get(), 282475249);
+/// assert_eq!(rng.get(), 1622650073);
+/// ```
+pub type MINSTD88 = Lcg64<16807, 0, 2147483647>;
 
-pub const MINSTD: Lcg32<48271, 0, 2147483647> = Lcg32::new(1);
+/// ```
+/// # use prrng::lcg::MINSTD;
+/// let mut rng = MINSTD::new(1);
+/// assert_eq!(rng.get(), 48271);
+/// assert_eq!(rng.get(), 182605794);
+/// assert_eq!(rng.get(), 1291394886);
+/// ```
+pub type MINSTD = Lcg64<48271, 0, 2147483647>;
 
 // https://www.jstor.org/stable/2008698
 // https://oeis.org/A384546
-pub const FISHMAN: Lcg32<950706376, 0, 2147483647> = Lcg32::new(1);
+pub type Fishman = Lcg32<950706376, 0, 2147483647>;
 
 /// based on the RANDF [`LCG`](`Lcg32`) constants.
 /// 
-/// this const defaults to a seed of `0x1`.
-/// 
 /// ```
 /// # use prrng::lcg::RANF;
-/// let mut rng = RANF;
+/// let mut rng = RANF::new(1);
 /// // https://oeis.org/A384696
 /// assert_eq!(rng.get(), 44485709377909);
 /// assert_eq!(rng.get(), 232253848878969);
@@ -255,16 +266,14 @@ pub const FISHMAN: Lcg32<950706376, 0, 2147483647> = Lcg32::new(1);
 /// assert_eq!(rng.get(), 243522309605169);
 /// assert_eq!(rng.get(), 20783065360997);
 /// ```
-pub const RANF: Lcg64<44485709377909, 0, 0x1000000000000> = Lcg64::new(1);
+pub type RANF = Lcg64<44485709377909, 0, 0x1000000000000>;
 
 /// based on the [RANDU](https://en.wikipedia.org/wiki/RANDU) [`LCG`](`Lcg32`) constants.
 /// these constants are notoriously terrible; it is not recommended to use this generator.
 /// 
-/// this const defaults to a seed of `0x1`.
-/// 
 /// ```
 /// # use prrng::lcg::RANDU;
-/// let mut rng = RANDU;
+/// let mut rng = RANDU::new(1);
 /// // https://oeis.org/A096555
 /// assert_eq!(rng.get(), 65539);
 /// assert_eq!(rng.get(), 393225);
@@ -277,9 +286,9 @@ pub const RANF: Lcg64<44485709377909, 0, 0x1000000000000> = Lcg64::new(1);
 /// assert_eq!(rng.get(), 1722371299);
 /// assert_eq!(rng.get(), 14608041);
 /// ```
-pub const RANDU: Lcg32<65539, 0, 0x80000000> = Lcg32::new(1);
+pub type RANDU = Lcg32<65539, 0, 0x80000000>;
 
-pub const VISUAL_BASIC_6: Lcg32<0x43fd43fd, 0xc39ec3, 0xffffff> = Lcg32::new(0x50000);
+pub type VisualBasic6 = Lcg32<0x43fd43fd, 0xc39ec3, 0xffffff>;
 
 
 
