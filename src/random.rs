@@ -3,18 +3,6 @@
 /// 
 /// see [`Random`] for more information.
 pub trait RandomImpl {
-	/// returns a new `u64`.
-	/// 
-	/// consider using [`crate::common::u64_from_bytes()`] or
-	/// [`crate::common::u32_compose_u64()`] when implementing this.
-	fn random_u64(&mut self) -> u64;
-	
-	/// returns a new `u32`.
-	/// 
-	/// consider using [`crate::common::u32_from_bytes()`]
-	/// when implementing this.
-	fn random_u32(&mut self) -> u32;
-	
 	/// fills a buffer with new values.
 	/// 
 	/// consider using [`crate::common::bytes_from_u32()`] or
@@ -93,14 +81,22 @@ pub trait Random: RandomImpl {
 		crate::common::u64_compose_u128(self.random_u64(), self.random_u64())
 	}
 
+    fn random_u64(&mut self) -> u64 {
+        crate::common::u64_from_bytes(self)
+    }
+
+    fn random_u32(&mut self) -> u32 {
+        crate::common::u32_from_bytes(self)
+    }
+
 	/// returns a new `u16`.
 	fn random_u16(&mut self) -> u16 {
-		self.random_u32() as u16
+        crate::common::u16_from_bytes(self)
 	}
 
 	/// returns a new `u8`.
 	fn random_u8(&mut self) -> u8 {
-		self.random_u32() as u8
+		crate::common::u8_from_bytes(self)
 	}
 
 	/// returns a new `bool`.
@@ -255,32 +251,12 @@ impl<T: RandomImpl> Random for T {
 
 impl<T: RandomImpl> RandomImpl for &mut T {
 	#[inline]
-	fn random_u64(&mut self) -> u64 {
-		(*self).random_u64()
-	}
-
-	#[inline]
-	fn random_u32(&mut self) -> u32 {
-		(*self).random_u32()
-	}
-
-	#[inline]
 	fn random_bytes(&mut self, dst: &mut [u8]) {
 		(*self).random_bytes(dst);
 	}
 }
 
 impl RandomImpl for &mut dyn RandomImpl {
-	#[inline]
-	fn random_u64(&mut self) -> u64 {
-		(*self).random_u64()
-	}
-
-	#[inline]
-	fn random_u32(&mut self) -> u32 {
-		(*self).random_u32()
-	}
-
 	fn random_bytes(&mut self, dst: &mut [u8]) {
 		(*self).random_bytes(dst);
 	}

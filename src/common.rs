@@ -1,10 +1,17 @@
 //! this module provides a few common, simple utility functions you might
 //! find useful when implementing your own [`crate::RandomImpl`] types.
 
+#[inline(always)]
+pub fn u128_from_bytes<R: crate::RandomImpl + ?Sized>(random: &mut R) -> u128 {
+	let mut bytes = [0u8; _];
+	random.random_bytes(&mut bytes);
+	u128::from_le_bytes(bytes)
+}
+
 /// construct a `u64` with [`crate::RandomImpl::random_bytes()`] with
 /// little-endian ordering.
 #[inline(always)]
-pub fn u64_from_bytes<R: crate::RandomImpl>(random: &mut R) -> u64 {
+pub fn u64_from_bytes<R: crate::RandomImpl + ?Sized>(random: &mut R) -> u64 {
 	let mut bytes = [0u8; _];
 	random.random_bytes(&mut bytes);
 	u64::from_le_bytes(bytes)
@@ -13,10 +20,44 @@ pub fn u64_from_bytes<R: crate::RandomImpl>(random: &mut R) -> u64 {
 /// construct a `u32` with [`crate::RandomImpl::random_bytes()`] with
 /// little-endian ordering.
 #[inline(always)]
-pub fn u32_from_bytes<R: crate::RandomImpl>(random: &mut R) -> u32 {
+pub fn u32_from_bytes<R: crate::RandomImpl + ?Sized>(random: &mut R) -> u32 {
 	let mut bytes = [0u8; _];
 	random.random_bytes(&mut bytes);
 	u32::from_le_bytes(bytes)
+}
+
+#[inline(always)]
+pub fn u16_from_bytes<R: crate::RandomImpl + ?Sized>(random: &mut R) -> u16 {
+	let mut bytes = [0u8; _];
+	random.random_bytes(&mut bytes);
+	u16::from_le_bytes(bytes)
+}
+
+#[inline(always)]
+pub fn u8_from_bytes<R: crate::RandomImpl + ?Sized>(random: &mut R) -> u8 {
+	let mut bytes = [0u8; _];
+	random.random_bytes(&mut bytes);
+	u8::from_le_bytes(bytes)
+}
+
+macro_rules! impl_bytes {
+    ($random:ident, $dst: ident) => {
+        let (chunks, extra) = $dst.as_chunks_mut();
+
+        for chunk in chunks {
+            *chunk = $random().to_le_bytes();
+        }
+
+        if extra.is_empty() {
+            return;
+        }
+
+        let last = $random().to_le_bytes();
+
+        for (o, i) in extra.iter_mut().zip(last.iter()) {
+            *o = *i;
+        }
+    }
 }
 
 /// fill a buffer with values from [`crate::RandomImpl::random_u64()`], with
@@ -37,7 +78,7 @@ pub fn u32_from_bytes<R: crate::RandomImpl>(random: &mut R) -> u32 {
 /// // 8 + 4 bytes
 /// let mut buf = [0u8; 12];
 /// 
-/// bytes_from_u64(&mut rng, &mut buf);
+/// bytes_from_u64(|| rng.get(), &mut buf);
 /// 
 /// assert_eq!(
 ///     buf,
@@ -50,22 +91,8 @@ pub fn u32_from_bytes<R: crate::RandomImpl>(random: &mut R) -> u32 {
 /// );
 /// ```
 #[inline(always)]
-pub fn bytes_from_u64<R: crate::RandomImpl>(random: &mut R, dst: &mut [u8]) {
-	let (chunks, extra) = dst.as_chunks_mut();
-
-	for chunk in chunks {
-		*chunk = random.random_u64().to_le_bytes();
-	}
-
-	if extra.is_empty() {
-		return;
-	}
-
-	let last = random.random_u64().to_le_bytes();
-
-	for (o, i) in extra.iter_mut().zip(last.iter()) {
-		*o = *i;
-	}
+pub fn bytes_from_u64<R: FnMut() -> u64>(mut random: R, dst: &mut [u8]) {
+    impl_bytes!(random, dst);
 }
 
 /// fill a buffer with values from [`crate::RandomImpl::random_u32()`], with
@@ -86,7 +113,7 @@ pub fn bytes_from_u64<R: crate::RandomImpl>(random: &mut R, dst: &mut [u8]) {
 /// // 4 + 2 bytes
 /// let mut buf = [0u8; 6];
 /// 
-/// bytes_from_u32(&mut rng, &mut buf);
+/// bytes_from_u32(|| rng.get(), &mut buf);
 /// 
 /// assert_eq!(
 ///     buf,
@@ -99,22 +126,23 @@ pub fn bytes_from_u64<R: crate::RandomImpl>(random: &mut R, dst: &mut [u8]) {
 /// );
 /// ```
 #[inline(always)]
-pub fn bytes_from_u32<R: crate::RandomImpl>(random: &mut R, dst: &mut [u8]) {
-	let (chunks, extra) = dst.as_chunks_mut();
+pub fn bytes_from_u32<R: FnMut() -> u32>(mut random: R, dst: &mut [u8]) {
+	impl_bytes!(random, dst);
+}
 
-	for chunk in chunks {
-		*chunk = random.random_u32().to_le_bytes();
-	}
+pub fn bytes_from_u16<R: FnMut() -> u16>(mut random: R, dst: &mut [u8]) {
+    impl_bytes!(random, dst);
+}
 
-	if extra.is_empty() {
-		return;
-	}
+pub fn bytes_from_u8<R: FnMut() -> u8>(mut random: R, dst: &mut [u8]) {
+    for byte in dst {
+        *byte = random();
+    }
+}
 
-	let last = random.random_u32().to_le_bytes();
-
-	for (o, i) in extra.iter_mut().zip(last.iter()) {
-		*o = *i;
-	}
+#[inline(always)]
+pub fn bytes_from_u128<R: FnMut() -> u128>(mut random: R, dst: &mut [u8]) {
+    impl_bytes!(random, dst);
 }
 
 /// construct a `u128` from two `u64`.

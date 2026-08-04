@@ -221,18 +221,8 @@ impl<const N: u8> ChaCha<N> {
 }
 
 impl<const N: u8> crate::RandomImpl for ChaCha<N> {
-	#[inline]
-	fn random_u64(&mut self) -> u64 {
-		crate::common::u32_compose_u64(self.get(), self.get())
-	}
-
-	#[inline]
-	fn random_u32(&mut self) -> u32 {
-		self.get()
-	}
-
 	fn random_bytes(&mut self, dst: &mut [u8]) {
-		crate::common::bytes_from_u32(self, dst);
+		crate::common::bytes_from_u32(|| self.get(), dst);
 	}
 }
 

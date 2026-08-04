@@ -1,4 +1,3 @@
-
 # prrng
 
 a collection of psuedo-random number generators.
@@ -17,10 +16,10 @@ fn main() {
     use prrng::Random;
 
     let mut iter = rng.random_iter();
-    assert_eq!(iter.next(), Some(0.7912035671411848));
-    assert_eq!(iter.next(), Some(0.5683147178403836));
+    assert_eq!(iter.next(), Some(0.3499294437447571));
+    assert_eq!(iter.next(), Some(0.9599156937488156));
 
-    assert_eq!(rng.random::<u64>(), 2716289712455752882);
+    assert_eq!(rng.random::<u64>(), 1871558671611343642);
     assert_eq!(rng.random::<(u8, bool)>(), (37, false));
 }
 ```

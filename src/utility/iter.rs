@@ -1,4 +1,3 @@
-
 /// iterator of [`crate::Random`].
 /// 
 /// this type simply implements [`Iterator`], where `T` is the return value
@@ -51,16 +50,6 @@ impl<T: crate::FromRandom, R: crate::Random> Iterator for Iter<T, R> {
 }
 
 impl<T: crate::FromRandom, R: crate::Random> crate::RandomImpl for Iter<T, R> {
-	#[inline]
-	fn random_u64(&mut self) -> u64 {
-		self.inner.random_u64()
-	}
-
-	#[inline]
-	fn random_u32(&mut self) -> u32 {
-		self.inner.random_u32()
-	}
-
 	#[inline]
 	fn random_bytes(&mut self, dst: &mut [u8]) {
 		self.inner.random_bytes(dst);

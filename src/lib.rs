@@ -1,6 +1,8 @@
 #![doc = include_str!("../readme.md")]
 
 #![no_std]
+#![warn(clippy::pedantic)]
+#![warn(clippy::no_doc_comment)]
 
 #[cfg(test)]
 mod test;

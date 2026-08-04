@@ -1,4 +1,3 @@
-
 /// this crate provides a few prng implementations. this is not one of those.
 /// 
 /// `Static` is an 'algorithm' that simply generates values you provide yourself.
@@ -101,18 +100,8 @@ impl<T: FnMut() -> f64> Static<T> {
 }
 
 impl<T: FnMut() -> f64> crate::RandomImpl for Static<T> {
-	#[inline]
-	fn random_u64(&mut self) -> u64 {
-		crate::common::u32_compose_u64(self.random_u32(), self.random_u32())
-	}
-
-	#[inline]
-	fn random_u32(&mut self) -> u32 {
-		crate::common::f64_to_u32(self.get())
-	}
-
 	fn random_bytes(&mut self, dst: &mut [u8]) {
-		crate::common::bytes_from_u32(self, dst);
+		crate::common::bytes_from_u32(|| crate::common::f64_to_u32(self.get()), dst);
 	}
 }
 

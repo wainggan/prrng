@@ -10,7 +10,7 @@
 
 /// cache values `T`. see the [module level documentation](self) for more information.
 /// 
-/// note that this type only implements [`crate::Random`] if `T` is either `u32` or `u64`.
+/// note that this type only implements [`crate::Random`] if `T` is `u8`, `u16`, `u32`, `u64`, or `u128`.
 #[derive(Clone)]
 pub struct Buffer<T: crate::FromRandom, const N: usize, R: crate::Random> {
 	inner: R,
@@ -194,35 +194,34 @@ impl<T: crate::FromRandom, const N: usize> Drop for BufferDropable<T, N> {
 	}
 }
 
-impl<const N: usize, R: crate::Random> crate::RandomImpl for Buffer<u64, N, R> {
-	#[inline]
-	fn random_u64(&mut self) -> u64 {
-		self.get()
-	}
-	
-	#[inline]
-	fn random_u32(&mut self) -> u32 {
-		self.get() as u32
-	}
-
+impl<const N: usize, R: crate::Random> crate::RandomImpl for Buffer<u128, N, R> {
 	fn random_bytes(&mut self, dst: &mut [u8]) {
-		crate::common::bytes_from_u64(self, dst);
+		crate::common::bytes_from_u128(|| self.get(), dst);
+	}
+}
+
+
+impl<const N: usize, R: crate::Random> crate::RandomImpl for Buffer<u64, N, R> {
+	fn random_bytes(&mut self, dst: &mut [u8]) {
+		crate::common::bytes_from_u64(|| self.get(), dst);
 	}
 }
 
 impl<const N: usize, R: crate::Random> crate::RandomImpl for Buffer<u32, N, R> {
-	#[inline]
-	fn random_u64(&mut self) -> u64 {
-		crate::common::u32_compose_u64(self.get(), self.get())
-	}
-	
-	#[inline]
-	fn random_u32(&mut self) -> u32 {
-		self.get()
-	}
-
 	fn random_bytes(&mut self, dst: &mut [u8]) {
-		crate::common::bytes_from_u32(self, dst);
+		crate::common::bytes_from_u32(|| self.get(), dst);
+	}
+}
+
+impl<const N: usize, R: crate::Random> crate::RandomImpl for Buffer<u16, N, R> {
+	fn random_bytes(&mut self, dst: &mut [u8]) {
+		crate::common::bytes_from_u16(|| self.get(), dst);
+	}
+}
+
+impl<const N: usize, R: crate::Random> crate::RandomImpl for Buffer<u8, N, R> {
+	fn random_bytes(&mut self, dst: &mut [u8]) {
+		crate::common::bytes_from_u8(|| self.get(), dst);
 	}
 }
 
@@ -287,20 +286,8 @@ impl<const N: usize, R: crate::Random> Buffer8<N, R> {
 
 impl<const N: usize, R: crate::Random> crate::RandomImpl for Buffer8<N, R> {
 	#[inline]
-	fn random_u64(&mut self) -> u64 {
-		crate::common::u64_from_bytes(self)
-	}
-	
-	#[inline]
-	fn random_u32(&mut self) -> u32 {
-		crate::common::u32_from_bytes(self)
-	}
-
-	#[inline]
 	fn random_bytes(&mut self, dst: &mut [u8]) {
-		for i in dst {
-			*i = self.get();
-		}
+        crate::common::bytes_from_u8(|| self.get(), dst);
 	}
 }
 

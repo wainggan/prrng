@@ -44,18 +44,8 @@ impl XorShift128p {
 }
 
 impl crate::RandomImpl for XorShift128p {
-	#[inline]
-	fn random_u64(&mut self) -> u64 {
-		self.get()
-	}
-
-	#[inline]
-	fn random_u32(&mut self) -> u32 {
-		self.get() as u32
-	}
-
 	fn random_bytes(&mut self, dst: &mut [u8]) {
-		crate::common::bytes_from_u64(self, dst);
+		crate::common::bytes_from_u64(|| self.get(), dst);
 	}
 }
 

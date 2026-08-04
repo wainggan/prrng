@@ -43,18 +43,8 @@ impl CollatzWeyl64 {
 }
 
 impl crate::RandomImpl for CollatzWeyl64 {
-	#[inline]
-	fn random_u64(&mut self) -> u64 {
-		self.get()
-	}
-
-	#[inline]
-	fn random_u32(&mut self) -> u32 {
-		self.get() as u32
-	}
-
 	fn random_bytes(&mut self, dst: &mut [u8]) {
-		crate::common::bytes_from_u64(self, dst);
+		crate::common::bytes_from_u64(|| self.get(), dst);
 	}
 }
 
@@ -108,18 +98,8 @@ impl CollatzWeyl128_64 {
 }
 
 impl crate::RandomImpl for CollatzWeyl128_64 {
-	#[inline]
-	fn random_u64(&mut self) -> u64 {
-		self.get() as u64
-	}
-
-	#[inline]
-	fn random_u32(&mut self) -> u32 {
-		self.get() as u32
-	}
-
 	fn random_bytes(&mut self, dst: &mut [u8]) {
-		crate::common::bytes_from_u64(self, dst);
+		crate::common::bytes_from_u128(|| self.get(), dst);
 	}
 }
 
@@ -173,18 +153,8 @@ impl CollatzWeyl128 {
 }
 
 impl crate::RandomImpl for CollatzWeyl128 {
-	#[inline]
-	fn random_u64(&mut self) -> u64 {
-		self.get() as u64
-	}
-
-	#[inline]
-	fn random_u32(&mut self) -> u32 {
-		self.get() as u32
-	}
-
 	fn random_bytes(&mut self, dst: &mut [u8]) {
-		crate::common::bytes_from_u64(self, dst);
+		crate::common::bytes_from_u128(|| self.get(), dst);
 	}
 }
 

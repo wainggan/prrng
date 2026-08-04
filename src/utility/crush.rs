@@ -1,4 +1,3 @@
-
 /// utility type for accumulating [`crate::Random`] calls.
 /// 
 /// many prng algorithms are not ["cryptographically secure"](https://en.wikipedia.org/wiki/Cryptographically_secure_pseudorandom_number_generator).
@@ -60,17 +59,8 @@ where R: crate::Random, H: core::hash::Hasher {
 
 impl<const N: usize, R, H> crate::RandomImpl for Crush<N, R, H>
 where R: crate::Random, H: core::hash::Hasher {
-	fn random_u64(&mut self) -> u64 {
-		self.get()
-	}
-
-	#[inline]
-	fn random_u32(&mut self) -> u32 {
-		self.get() as u32
-	}
-
 	fn random_bytes(&mut self, dst: &mut [u8]) {
-		crate::common::bytes_from_u64(self, dst);
+		crate::common::bytes_from_u64(|| self.get(), dst);
 	}
 }
 

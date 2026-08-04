@@ -1,5 +1,3 @@
-
-
 const STATE_N: usize = 624;
 const STATE_M: usize = 397;
 
@@ -89,18 +87,8 @@ impl MTwister {
 }
 
 impl crate::RandomImpl for MTwister {
-	#[inline]
-	fn random_u64(&mut self) -> u64 {
-		crate::common::u32_compose_u64(self.get(), self.get())
-	}
-
-	#[inline]
-	fn random_u32(&mut self) -> u32 {
-		self.get()
-	}
-
 	fn random_bytes(&mut self, dst: &mut [u8]) {
-		crate::common::bytes_from_u32(self, dst);
+		crate::common::bytes_from_u32(|| self.get(), dst);
 	}
 }
 

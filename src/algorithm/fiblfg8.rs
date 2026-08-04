@@ -1,4 +1,3 @@
-
 #[inline(always)]
 const fn rol(x: u8, c: bool) -> (u8, bool) {
 	let carry = (0x80 & x) >> 7 != 0;
@@ -131,20 +130,8 @@ impl FibLFG8 {
 
 impl crate::RandomImpl for FibLFG8 {
 	#[inline]
-	fn random_u64(&mut self) -> u64 {
-		crate::common::u64_from_bytes(self)
-	}
-
-	#[inline]
-	fn random_u32(&mut self) -> u32 {
-		crate::common::u32_from_bytes(self)
-	}
-
-	#[inline]
 	fn random_bytes(&mut self, dst: &mut [u8]) {
-		for i in dst {
-			*i = self.get();
-		}
+        crate::common::bytes_from_u8(|| self.get(), dst);
 	}
 }
 
