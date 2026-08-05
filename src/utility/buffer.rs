@@ -227,13 +227,13 @@ impl<const N: usize, R: crate::Random> crate::RandomImpl for Buffer<u8, N, R> {
 
 /// cache `u8` values. see the [module level documentation](self) for more information.
 #[derive(Clone)]
-pub struct Buffer8<const N: usize, R: crate::Random> {
+pub struct BufferBytes<const N: usize, R: crate::Random> {
 	inner: R,
 	buf: [u8; N],
 	index: usize,
 }
 
-impl<const N: usize, R: crate::Random> Buffer8<N, R> {
+impl<const N: usize, R: crate::Random> BufferBytes<N, R> {
 	#[inline]
 	pub const fn new(inner: R) -> Self {
 		Self {
@@ -284,16 +284,16 @@ impl<const N: usize, R: crate::Random> Buffer8<N, R> {
 	}
 }
 
-impl<const N: usize, R: crate::Random> crate::RandomImpl for Buffer8<N, R> {
+impl<const N: usize, R: crate::Random> crate::RandomImpl for BufferBytes<N, R> {
 	#[inline]
 	fn random_bytes(&mut self, dst: &mut [u8]) {
         crate::common::bytes_from_u8(|| self.get(), dst);
 	}
 }
 
-impl<const N: usize, R: crate::Random + core::fmt::Debug> core::fmt::Debug for Buffer8<N, R> {
+impl<const N: usize, R: crate::Random + core::fmt::Debug> core::fmt::Debug for BufferBytes<N, R> {
 	fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
-		write!(f, "Buffer8<[u8; {}]>({:?})", N, self.inner)
+		write!(f, "BufferBytes<[u8; {}]>({:?})", N, self.inner)
 	}
 }
 

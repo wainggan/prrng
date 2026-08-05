@@ -210,20 +210,20 @@ pub trait Random: RandomImpl {
 		crate::Buffer::new(self)
 	}
 
-	/// consume `self`, wrapping it in a [`crate::buffer::Buffer8`] with size `N`.
+	/// consume `self`, wrapping it in a [`crate::buffer::BufferBytes`] with size `N`.
 	#[inline]
-	fn random_into_buffer8<const N: usize>(self)
-		-> crate::Buffer8<N, Self> where Self: Sized
+	fn random_into_buffer_bytes<const N: usize>(self)
+		-> crate::BufferBytes<N, Self> where Self: Sized
 	{
-		crate::Buffer8::new(self)
+		crate::BufferBytes::new(self)
 	}
 
-	/// wrap `&mut self` in a [`crate::buffer::Buffer8`] with size `N`.
+	/// wrap `&mut self` in a [`crate::buffer::BufferBytes`] with size `N`.
 	#[inline]
-	fn random_buffer8<const N: usize>(&mut self)
-		-> crate::Buffer8<N, &mut Self> where Self: Sized
+	fn random_buffer_bytes<const N: usize>(&mut self)
+		-> crate::BufferBytes<N, &mut Self> where Self: Sized
 	{
-		crate::Buffer8::new(self)
+		crate::BufferBytes::new(self)
 	}
 
 	/// consume `self`, wrapping it in a [`crate::Crush`], where `N` is how many

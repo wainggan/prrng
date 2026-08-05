@@ -115,8 +115,8 @@ fn test_debug() {
 	);
 
 	cmp(
-		crate::Buffer8::<4, _>::new(crate::XorShift32::new(0)),
-		"Buffer8<[u8; 4]>(XorShift32)",
+		crate::BufferBytes::<4, _>::new(crate::XorShift32::new(0)),
+		"BufferBytes<[u8; 4]>(XorShift32)",
 	);
 
 	#[derive(Debug)]
